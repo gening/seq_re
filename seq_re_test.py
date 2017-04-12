@@ -176,13 +176,15 @@ def sp():
 
 def sr():
     sr = seq_re.SeqRegex(2)
+
+    pattern = ur'(?P<com1@@>/company_name/) .{0,5} (?P<com2@@>/company_name/) .{0,5} (/:verb/)'
+    abbr = {u'company_name': [u'中信证券', u'美的集团'], u'verb': u'v'}
+    sr.compile(pattern, **abbr)
+
     line = (u'中信证券股份有限公司`nc company_name`n 以下`f 简称`v 中信证券`nc 或`c 保荐`v 机构`n 接受`v 美的集团`nc '
             u'的`uj 委托`n ,`x 担任`v 美的集团`nc 本次`r 非`h 公开`ad 发行`v 的`uj 上市`ns 保荐`v '
             u'机构`n')
     seq = [item.split('`') for item in line.split()]
-    pattern = ur'(?P<com1@@>/company_name/) .{0,5} (?P<com2@@>/company_name/) .{0,5} (/:verb/)'
-    abbr = {u'company_name': [u'中信证券', u'美的集团'], u'verb': u'v'}
-    sr.compile(pattern, **abbr)
     result = sr.search(pattern, seq)
     if result:
         for g in result.group_list:
