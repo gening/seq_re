@@ -215,7 +215,7 @@ class SeqRegexParser(object):
             if this is None:
                 # unexpected end of tuple pattern
                 raise source.error(u'unbalanced slash `/`', source.pos - start_pos)
-            if this == u'/':
+            if this in u'/':  # terminator = u'/'
                 if negative_flag >= 0 or len(element_list) > 0:
                     self._parse_element(negative_flag, element_list)
                     # negative_flag = -1
@@ -231,6 +231,9 @@ class SeqRegexParser(object):
             source.get()
 
             if this == u':':
+                # if terminator !=u'/':
+                #     raise source.error(u'invalid `:` out inside `/.../`', 1)
+                # parse the element
                 self._parse_element(negative_flag, element_list)
                 negative_flag = -1
                 # move dim_index forwards
@@ -398,13 +401,7 @@ class SeqRegexParser(object):
             # move index of the source forward
             source.get()
 
-            if this[0] == u'\\':
-                raise source.error(u'invalid escape expression `\\`', len(this))
-            elif this in u'[]':
-                raise source.error(u'invalid set indicator `%s`' % this, 1)
-            elif this.isspace():
-                pass
-            elif this == u'.':
+            if this == u'.':
                 parsed.append([Flags.EXP, u'(?:' + u'.' * self._ndim + u')', this_pos])
             elif this == u'(':
                 # parse the whole group content `...` without consuming `(` and `)`
@@ -418,13 +415,27 @@ class SeqRegexParser(object):
                 if not source.match(u'/'):
                     # unexpected end of group pattern
                     raise source.error(u'unbalanced slash `/`', source.pos - this_pos)
-            elif this in u'*+?{,}0123456789' or this in u'^$' or this in u'|':
-                # repeat
+            elif this[0] == u'\\':
+                raise source.error(u'invalid escape expression `\\`', len(this))
+            elif this in u'[]':
+                raise source.error(u'invalid set indicator `%s`' % this, 1)
+            elif this in u'*+?{,}' or this in u'0123456789' or this in u'^$' or this in u'|':
+                # repeat with digital
                 # at beginning or end
                 # branch
                 parsed.append([Flags.EX, this, this_pos])
+            # omit whitespace
+            elif this.isspace():
+                pass
+            # omit non-special chars
             else:
                 raise source.error(u'unsupported syntax char `%s`' % this, 1)
+                # otherwise:
+                # deal with non-special chars as tuple
+                # parse the tuple in which `:` is not accepted
+                # and `|`, `^` has already been excluded because they are special chars
+                # tuple terminator could be any special char (not digital), whitespace or None
+                # finally bring no more benefits other than bugs
         return
 
     def _parse_seq(self):
