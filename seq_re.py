@@ -185,9 +185,15 @@ class SeqRegex(object):
         """对tokens列表编码为连续文本字符串"""
         self._nd_sequence = nd_sequence
         stack_encoded = []
+        default = u'.'
+        # todo: wrap as a function exists_negative_set
+        for flag, _, _ in self._parser._pattern_stack:
+            if flag == sp.Flags.SET_NEG:
+                default = None
+                break
         for nd_tuple in nd_sequence:
             for element in nd_tuple:
-                stack_encoded.append(self._encode_str(element, default=u'.'))
+                stack_encoded.append(self._encode_str(element, default))
         return u''.join(stack_encoded)
 
     # ######################################## #
