@@ -529,6 +529,39 @@ class SeqRegexParser(object):
         else:
             raise ValueError('group index out of range')
 
+    def exists_negative_set(self):
+        # check whether there exists negative set
+        exists = False
+        for i in xrange(len(self._pattern_stack)):
+            if self._pattern_stack[i][0] == Flags.SET_NEG:
+                exists = True
+                break
+        return exists
+
+    def get_positive_literal_sets(self):
+        # get literals grouped by sets which do not have negative sign
+        # return literal_set_list = ['str', ['str', 'str'], ....]
+        literal_set_list = []
+        in_set = False
+        positive = False
+        for flag, string, _ in self._pattern_stack:
+            if flag == Flags.SET_START:
+                in_set = True
+                positive = True
+                if len(literal_set_list) == 0 or len(literal_set_list[-1]) == 0:
+                    literal_set_list.append(set())
+            elif flag == Flags.SET_NEG:
+                positive = False
+            elif flag == Flags.LITERAL:
+                if positive:
+                    literal_set_list[-1].add(string)
+                elif not in_set:
+                    literal_set_list.append({string})  # a set
+            elif flag == Flags.EXT_END:
+                in_set = False
+                positive = False
+        return literal_set_list
+
 
 class Tokenizer(object):
     # this class is based on the following but modified:
