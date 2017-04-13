@@ -80,12 +80,12 @@ re.findall('(a|b){0,5}', 'aaaaaaa')
 to represent a literal backslash `\`, '\\\\' must be used in the python code 
 before the special characters to express the `\\` as the pattern string.
 不支持比较数字大小
-deal with multi-value elements in the sequence
+
 
 """
-# todo
-# doc
-
+# todo: doc
+# todo: deal with multi-value elements in the sequence
+# todo: assign an default name uniquely for group
 
 __author__ = "GE Ning <https://github.com/gening/seq_re>"
 __copyright__ = "Copyright (C) 2017 GE Ning"
@@ -254,12 +254,12 @@ class SeqRegex(object):
                     else:
                         # noinspection PyProtectedMember
                         # `@@` => get pattern itself
-                        pattern_str = self.sq_re._parser.get_pattern_str_by_name(group_name)
-                        # `(?:P<name@@>pattern_str)`
+                        pattern_sub = self.sq_re._parser.get_pattern_by_name(group_name)
+                        # `(?:P<name@@>pattern_sub)`
                         if trimmed:
-                            # `pattern_str`
-                            pattern_str = pattern_str[pattern_str.find('>') + 1: -1]
-                        formatted_str_list.append(pattern_str)
+                            # `pattern_sub`
+                            pattern_sub = pattern_sub[pattern_sub.find('>') + 1: -1]
+                        formatted_str_list.append(pattern_sub)
                 else:
                     # default formatter
                     for match_tuple in match_sequence:

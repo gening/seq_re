@@ -472,7 +472,7 @@ class SeqRegexParser(object):
                     dump_stack.append(string)
         return u''.join(dump_stack)
 
-    def get_pattern_str_by_name(self, group_name):
+    def get_pattern_by_name(self, group_name):
         # get original pattern string determined by group name
         start = end = step = -1
         for flag, string, pos in self._pattern_stack:
@@ -496,7 +496,7 @@ class SeqRegexParser(object):
         else:
             raise ValueError('unknown group name')
 
-    def get_pattern_str_by_id(self, group_index):
+    def get_pattern_by_id(self, group_index):
         # get original pattern string determined by group index
         start = end = step = -1
         group_id = 0
