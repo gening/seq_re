@@ -20,7 +20,8 @@ a char, a flag, a token or a tag, and maybe a set of tags later.
 
 Examples：
 (/::PERSON/+) /was|is/ /a|an|the/? .{0,5} (/painter|drawing artist|画家/)
-(?P<person_name@0,1:3>/::PERSON/) /:VERB be:/ /born/ /on/ (?P<birthday@0:2>(/:^NUMBER:DATE/|/-/){2,3})
+(?P<person_name@0,1:3>/::PERSON/) /:VERB be:/ /born/ /on/ 
+(?P<birthday@0:2>(/:^NUMBER:DATE/|/-/){2,3})
 
 其中
 元组
@@ -64,13 +65,13 @@ such as `(?!/:Z:/)/::/` <==> `/:^Z:/`, pseudo re pattern = `(?!(?:.Z.))...`
 并且否定的数量与后面跟随的数量一致，避免因表达式不清晰而产生副作用。
 
 todo 逻辑有问题
->>> re.findall('a|b*', 'aaaaaaa')
+re.findall('a|b*', 'aaaaaaa')
 ['a', 'a', 'a', 'a', 'a', 'a', 'a', '']
->>> re.findall('(a|b)*', 'aaaaaaa')
+re.findall('(a|b)*', 'aaaaaaa')
 ['a', '']
->>> re.findall('[a|b]*', 'aaaaaaa')
+re.findall('[a|b]*', 'aaaaaaa')
 ['aaaaaaa', '']
->>> re.findall('(a|b){0,5}', 'aaaaaaa')
+re.findall('(a|b){0,5}', 'aaaaaaa')
 ['a', 'a', '']
 
 
@@ -83,7 +84,6 @@ deal with multi-value elements in the sequence
 
 """
 # todo
-# no pep 8
 # doc
 
 
@@ -92,7 +92,7 @@ __copyright__ = "Copyright (C) 2017 GE Ning"
 __license__ = "Apache License 2.0"
 __version__ = "0.1.4"
 
-import re  # nopep8
+import re
 import seq_re_parse as sp
 
 
@@ -185,15 +185,10 @@ class SeqRegex(object):
         """对tokens列表编码为连续文本字符串"""
         self._nd_sequence = nd_sequence
         stack_encoded = []
-        default = u'.'
-        # todo: wrap as a function exists_negative_set
-        for flag, _, _ in self._parser._pattern_stack:
-            if flag == sp.Flags.SET_NEG:
-                default = None
-                break
+        default_encoded_str = None if self._parser.exists_negative_set() else u'.'
         for nd_tuple in nd_sequence:
             for element in nd_tuple:
-                stack_encoded.append(self._encode_str(element, default))
+                stack_encoded.append(self._encode_str(element, default_encoded_str))
         return u''.join(stack_encoded)
 
     # ######################################## #
@@ -219,14 +214,17 @@ class SeqRegex(object):
         def findall(self, nd_sequence):
             return self._outer.findall(self._outer._seq_pattern, nd_sequence)
 
+        def is_useless_for(self, nd_sequence):
+            return self._outer.is_useless_for(nd_sequence)
+
     class SeqMatchObject(object):
 
-        __slots__ = ('group_list', 'named_group_dict', '_outer')
+        __slots__ = ('group_list', 'named_group_dict', 'sq_re')
 
         def __init__(self, outer_class):
             self.group_list = []
-            self.named_group_dict = dict()
-            self._outer = outer_class
+            self.named_group_dict = dict()  # add index to consider as collections.OrderedDict
+            self.sq_re = outer_class
 
         def format_group_to_str(self, group_name, trimmed=True):
             formatted_str_list = []
@@ -242,18 +240,21 @@ class SeqRegex(object):
                     return u'.'
 
             if group_name in self.named_group_dict:
-                match_sequence, _, _ = self.named_group_dict[group_name]
-                if group_name in self._outer._parser.named_group_format_indices:
-                    format_indices = self._outer._parser.named_group_format_indices[group_name]
+                group_index, match_sequence, _, _ = self.named_group_dict[group_name]
+                # noinspection PyProtectedMember
+                if group_name in self.sq_re._parser.named_group_format_indices:
+                    # noinspection PyProtectedMember
+                    format_indices = self.sq_re._parser.named_group_format_indices[group_name]
                     if format_indices is not None:
                         for match_tuple in match_sequence:
-                            formatted_tuple = [u''] * self._outer.ndim
+                            formatted_tuple = [u''] * self.sq_re.ndim
                             for low, high in format_indices:
                                 formatted_tuple[low: high] = match_tuple[low: high]
                             formatted_str_list.append(formatter(formatted_tuple))
                     else:
+                        # noinspection PyProtectedMember
                         # `@@` => get pattern itself
-                        pattern_str = self._outer._parser.get_pattern_str_by_name(group_name)
+                        pattern_str = self.sq_re._parser.get_pattern_str_by_name(group_name)
                         # `(?:P<name@@>pattern_str)`
                         if trimmed:
                             # `pattern_str`
@@ -293,12 +294,15 @@ class SeqRegex(object):
             for group_index in range(len(match.groups()) + 1):
                 start = match.start(group_index) / self._ndim
                 end = match.end(group_index) / self._ndim
-                match_object.group_list.append((nd_sequence[start:end], start, end))
+                match_object.group_list.append((group_index,
+                                                nd_sequence[start:end], start, end))
             # Named subgroups
             for group_name, group_index in self._regex.groupindex.items():
                 start = match.start(group_index) / self._ndim
                 end = match.end(group_index) / self._ndim
-                match_object.named_group_dict[group_name] = (nd_sequence[start:end], start, end)
+                # group_index is needed to sort the named groups in order
+                match_object.named_group_dict[group_name] = (group_index,
+                                                             nd_sequence[start:end], start, end)
             yield match_object
 
     def search(self, seq_pattern, nd_sequence):
@@ -312,3 +316,31 @@ class SeqRegex(object):
     def findall(self, seq_pattern, nd_sequence):
         """not overlapping"""
         return [self.finditer(seq_pattern, nd_sequence)]
+
+    def is_useless_for(self, nd_sequence):
+        # for preliminary screening the seq in advanced,
+        # to check whether regular expression has no chance of success.
+        # for literals in the negative set,
+        # not sure whether they should or should not be in the seq.
+        # for literals in the positive set,
+        # any one could be in the seq,
+        # and their order cannot be determined in advanced.
+        positive_sets = self._parser.get_positive_literal_sets()
+        useless = True
+        for each_set in positive_sets:
+            useless = True
+            for literal in each_set:
+                # seq.find(literal) > -1 but seq is not a string
+                for nd_tuple in nd_sequence:
+                    for e in nd_tuple:
+                        # list, set
+                        if hasattr(e, '__iter__'):
+                            if literal in e:
+                                useless = False
+                                break
+                        # string
+                        else:
+                            if literal == e:
+                                useless = False
+                                break
+        return useless
