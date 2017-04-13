@@ -115,6 +115,7 @@
 p_test = u'/\:\/\|\\\\/0'
 import seq_re_parse
 import seq_re
+import seq_re_bootstrap
 
 
 # todo
@@ -188,9 +189,29 @@ def sr():
     result = sr.search(pattern, seq)
     if result:
         for g in result.group_list:
-            print ' '.join(['`'.join(map(lambda s: s.encode('utf-8'), item)) for item in g[0]])
+            print ' '.join(['`'.join(map(lambda s: s.encode('utf-8'), item)) for item in g[1]])
         for name in result.named_group_dict.iterkeys():
             print name, result.format_group_to_str(name, True)
+
+def bs():
+    ndim = 2
+    # pattern
+    # fixme：whether to assign an default name uniquely for print
+    trigger_pattern_str = ur'(?P<company1@@>/company_name1/) (?P<x1@@>.{0,5}) (?P<verb@0>/:v/) (?P<x2@@>.{0,5}) (?P<company2@@>/company_name2/) (?P<x3@@>.{0,5}) (?P<noun@0>/:n/)'  # trigger pattern
+    trigger_dict_list = [{u'company_name1': [u'中信证券'], u'company_name2': u'美的集团'},
+                         {u'company_name1': [u'中信证券股份有限公司'],
+                          u'company_name2': u'中信证券'}]  # trigger tuples
+    # corpus
+    tagged_lines = []
+    line = (u'中信证券股份有限公司`nc company_name`n 以下`f 简称`v 中信证券`nc 或`c 保荐`v 机构`n 接受`v 美的集团`nc '
+            u'的`uj 委托`n ,`x 担任`v 美的集团`nc 本次`r 非`h 公开`ad 发行`v 的`uj 上市`ns 保荐`v '
+            u'机构`n')
+    seq = [item.split('`') for item in line.split()]
+    tagged_lines.append(seq)
+
+    result = seq_re_bootstrap.bootstrap(ndim, trigger_pattern_str, trigger_dict_list, tagged_lines)
+    for gen_pattern, freq in result:
+        print u'%s\t%s' % (freq, gen_pattern)
 
 
 import unicodedata
@@ -215,3 +236,4 @@ if __name__ == '__main__':
     """
     sp()
     sr()
+    bs()
