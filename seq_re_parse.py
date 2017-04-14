@@ -9,6 +9,7 @@ __version__ = "0.1.4"
 # todo: assign an default name uniquely for group
 """
 multi-value elements in the sequence
+=> unfold multi-values as new dimensions of elements
 
 pattern:
 element match a =>
