@@ -5,6 +5,49 @@ __copyright__ = "Copyright (C) 2017 GE Ning"
 __license__ = "Apache License 2.0"
 __version__ = "0.1.4"
 
+# todo: deal with multi-value elements in the sequence
+# todo: assign an default name uniquely for group
+"""
+multi-value elements in the sequence
+
+pattern:
+element match a =>
+(?![^a]{3}).{3}
+match
+x 123
+v a23
+v 1a3
+v 12a
+v aa3
+v 1aa
+v a2a
+v aaa
+
+element match ^a =>
+(?![a]{3}).{3}
+match
+v 123
+v a23
+v 1a3
+v 12a
+v aa3
+v 1aa
+v a2a
+x aaa
+
+element match . =>
+.{3}
+
+sequence:
+the 3rd dimension is 3 multi-values
+tup = [W,P,(A,B,C)] =>
+extend
+WPABC
+
+tup = [W,P,X] =>
+extend
+WPXXX
+"""
 
 class Flags(object):
     EX = 'EX'  # general expression
@@ -531,6 +574,7 @@ class SeqRegexParser(object):
 
     def exists_negative_set(self):
         # check whether there exists negative set
+        # fixme: if exits ?! ?<!
         exists = False
         for i in xrange(len(self._pattern_stack)):
             if self._pattern_stack[i][0] == Flags.SET_NEG:
@@ -541,6 +585,7 @@ class SeqRegexParser(object):
     def get_positive_literal_sets(self):
         # get literals grouped by sets which do not have negative sign
         # return literal_set_list = ['str', ['str', 'str'], ....]
+        # fixme: sets come after ?! ?<! ==> - - = + , - + = -
         literal_set_list = []
         in_set = False
         positive = False
