@@ -22,7 +22,8 @@ the SEQ_RE patterns is written like one of the examples:
 ```
 (/::PERSON/+) /was|is/ /an/? .{0,3} (/^painter|drawing artist|画家/)
 
-(?P<person_name@0>/::PERSON/) /:VERB Be:/ /born/ /on/ (?P<birthday@0:2>(/::NUMBER|MONTH/|/-/){2,3})
+(?P<person_name@0,1,2>/::PERSON/) /:VERB Be:/ /born/ /on/
+(?P<birthday@0:3>(/::NUMBER|MONTH/|/-/){2,3})
 ```
 
 ## The syntax of SEQ_RE pattern
@@ -49,7 +50,7 @@ If `^` comes the first character in a dimension but it is a part of a literal st
 
 - The priority of above-mentioned operations:  `/` > `:` > `^` (not literal) > `|` > `^` (literal) .
 
-- `\` is an escaping symbol before aforementioned special characters.  
+- `\` is an escaping symbol before aforementioned special characters.
 Characters other than `/`, `:` or `\` lose their special meaning inside `／...／`.
 To express `/`, `:` or `|` in literal, `\` should be added before `/`, `:` or `|`.
 Meanwhile, to represent a literal backslash `\` before `/`, `:` or `|`,
@@ -61,13 +62,13 @@ Meanwhile, to represent a literal backslash `\` before `/`, `:` or `|`,
 - The special meanings of special characters in the ordinary RE are only available here,
 but with the limitations discussed below.
 
-- **Not** support the following escaped special characters:
+- ***Not*** support the following escaped special characters:  
 `\number`, `\A`, `\b`, `\B`, `\d`, `\D`, `\s`, `\S`, `\w`, `\W`, `\Z`,
 `\a`, `\b`, `\f`, `\n`, `\r`, `\t`, `\v`, `\x`.
 
-- **Not** support `[` and `]` as special characters to indicate a set of characters.
+- ***Not*** support `[` and `]` as special characters to indicate a set of characters.
 
-- **Not** support ranges of characters,
+- ***Not*** support ranges of characters,
 such as `[0-9A-Za-z]`, `[\u4E00-\u9FBB\u3007]` (Unihan and Chinese character `〇`)
 used in ordinary RE.
 
@@ -78,23 +79,24 @@ used in ordinary RE.
 - The named groups in the pattern are very useful.
 As an extension, a format indices string starts with `@` can be followed after the group name,
 to describe which dimensions of the tuples in this group will be output as the result.
-For example: (?P<name@d1,d2:d3>...), in which d1, d2, d3 is the index number of a dimension.
+For example: `(?P<name@d1,d2:d3>...)`, in which `d1`, `d2`, `d3` is the index number of a dimension.
   - `@` means the matched result in all of dimensions will be output.
-  - `@0,2:4` means the matched result only in the 0th and from 2nd to 3rd of dimensions will be output.
+  - `@0,2:4` means the matched result only in the 0th
+    and from 2nd to 3rd of dimensions will be output.
   - `@@` means the pattern of the group itself will be output other than the matched result.
 
 ### Boolean logic in the `/.../`
 
 Given a 3-D sequence `[[d1, d2, d3], ... ]`,
-- AND
+- AND  
 `/X::Y/` will match D1 == `X` && D2 == `Y`.
 Its behavior looks like the ordinary RE pattern `(?:X.Y)`.
-- OR
+- OR  
 `/X::/|/::Y/` will match D1 == `X` || D2 == `Y`.
 Its behavior looks like the ordinary RE pattern `(?:X..)|(?:..Y)`
-- NOT
-if `/:^P:/` will match D2 != `P`.
-Its behavior looks like the ordinary RE pattern `(?:.[^P].)`.
+- NOT  
+If `/:^P:/` will match D2 != `P`.
+Its behavior looks like the ordinary RE pattern `(?:.[^P].)`.  
 We can also use a negative lookahead assertion of ordinary RE,
 to give a negative covered the following.
 e.g. `(?!/:P://Q/)/:://::/` <==> `/:^P://^Q::/`,
@@ -102,7 +104,7 @@ which behavior looks like the ordinary RE pattern`(?!(?:.P.))...`.
 
 ## In addition
 
-- **Not** support comparing the number of figures.
+- ***Not*** support comparing the number of figures.
 
 - Multi-values in one dimension is not supported now, but this feature may be improved later.
 
