@@ -19,7 +19,7 @@ a char, a flag, a token or a tag, and maybe a set of tags or values (multi-value
 To match a pattern in an n-dimension sequence,
 the SEQ_RE patterns is written like one of the examples:
 
-```python
+```regexp
 (/::PERSON/+) /was|has been/ /an/? .{0,3} (/^painter|drawing artist|画家/)
 
 (?P<name@0,1,2>/::PERSON/) /:VERB be:/ /born/ /on/ (?P<birthday@0:3>(/::NUMBER|MONTH/|/-/){2,3})
