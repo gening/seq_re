@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
+
 """
 unit test for all modules of seq_re:
 
@@ -166,10 +167,9 @@ class TestSeqRegex:
         abbr = {u'company_name': [u'中信证券', u'美的集团'], u'verb': u'v'}
 
         # test
-        sr = seq_re.SeqRegex(self.ndim)
-        sr.compile(pattern, **abbr)
+        sr = seq_re.SeqRegex(self.ndim).compile(pattern, **abbr)
         for seq in self.tagged_lines:
-            result = sr.search(pattern, seq)
+            result = sr.search(seq)
             if result:
                 for g in result.group_list:
                     print ' '.join(['`'.join(map(unicode, item)) for item in g[1]])
