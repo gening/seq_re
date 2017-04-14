@@ -1,7 +1,8 @@
 # coding:utf-8
 
 """
-N-dimensional Sequence Regular Expression
+N-dimensional Sequence Regular Expression (SEQ_RE)
+==================================================
 
 This module provides regular expression matching operations on a sequence data structure
 like the following:
@@ -14,73 +15,94 @@ seq_m_n = [[str_11, str_12, ... str_1n],
 The sequence is a homogeneous multidimensional array (齐次多维数组).
 
 A element in each dimension can be considered as either a string, a word, a phrase, 
-a char, a flag, a token or a tag, and maybe a set of tags later.
+a char, a flag, a token or a tag, and maybe a set of tags or values (multi-values) later.
+
+To match a pattern in an n-dimension sequence, 
+the SEQ_RE patterns is written like one of the examples: 
+
+> (/::PERSON/+) /was|is/ /an/? .{0,3} (/painter|drawing artist|画家/)
+
+> (?P<person_name@0,1:3>/::PERSON/) /:VERB be:/ /born/ /on/ (?P<birthday@0:2>(/:^NUMBER:DATE/|/-/){2,3})
+
+## The syntax of SEQ_RE pattern
+
+A SEQ_RE pattern most looks like the ordinary regular express (RE) used in Python, 
+in which the delimiters `/.../` is to indicate a tuple of n dimensions.
+
+### Inside `/.../`
+
+- `/` is the beginning and end delimiter of the tuple, e.g. `/.../`.
+
+- `:` separates the each dimension in the tuple, and the continuous `:` at the tail can be omitted, 
+e.g. `/A|B:X:/`, `/A|B:X/`.
+
+- `|` indicates the different values of one dimension, e.g. `A|B`. 
+These values form a set, and any string in the set will be matched, 
+e.g. `A|B` will match `A` or `B`. 
+
+- `^` be the first character in one dimension, 
+all the string that are not in the value set of this dimension will be matched. 
+And `^` has no special meaning if it’s not the first character of the dimension.
+If `^` comes the first character in a dimension but it is a part of a literal string, 
+`\^` should be used to escape it.
+
+- The priority of above-mentioned operations:  `/` > `:` > `^`(not literal) > `|` > `^`(literal) .
+
+- `\` is an escaping symbol before aforementioned special characters.  
+Characters other than `/`, `:` or `\` lose their special meaning inside `／...／`.
+To express `/`, `:` or `|` in literal, `\` should be added before `/`, `:` or `|`. 
+Meanwhile, to represent a literal backslash `\` before `/`, `:` or `|`, 
+`\\` should be used in the plain text that is to say '\\\\' must be used in the python code.
 
 
+### Outside `/.../`
 
-Examples：
-(/::PERSON/+) /was|is/ /a|an|the/? .{0,5} (/painter|drawing artist|画家/)
-(?P<person_name@0,1:3>/::PERSON/) /:VERB be:/ /born/ /on/ 
-(?P<birthday@0:2>(/:^NUMBER:DATE/|/-/){2,3})
+- The special meanings of special characters in the ordinary RE are only available here, 
+but with the limitations discussed below. 
 
-其中
-元组
+- NOT support the following escaped special characters: 
+`\number`, `\A`, `\b`, `\B`, `\d`, `\D`, `\s`, `\S`, `\w`, `\W`, `\Z`, 
+`\a`, `\b`, `\f`, `\n`, `\r`, `\t`, `\v`, `\x`.
 
-序列元组使用/:::/表示，其中用:作为维度的分割，每个维度可以用|表示多值集合
-它们是逻辑或的关系。
-^ has no special meaning if it’s not the first character in the set.
-运算优先级 / > : > ^ > |
-缩写. <==> /:::/
+- NOT support `[` and `]` as special characters to indicate a set of characters.
 
-在／／中
-Special characters lose their special meaning inside ／...／
+- NOT support ranges of characters, 
+such as `[0-9A-Za-z]`, `[\u4E00-\u9FBB]` (Unihan) used in ordinary RE.
 
-元组之外可以用使用正则表达的符号
+- The whitespace and non-special characters are ignored.
 
-使用带命名的组有一个好处是：可以指定输出维度：
-(?P<name@d1,d2>...)
-name group name
-@ 全部维度，可以省略
-@1,2,3 或 1:3 指定维度
-@@ 返回规则本身
+- `.` is an abbreviation of `/:::/`.
 
+- The named groups in the pattern are very useful. 
+As an extension, a format indices string starts with `@` can be followed after the group name, 
+to describe which dimensions of the tuples in this group will be output as the result.
+For example: (?P<name@d1,d2:d3>...), in which d1, d2, d3 is the index number of a dimension.
+  - `@` means the matched result in all of dimensions will be output.
+  - `@0,2:4` means the matched result only in the 0th and from 2nd to 3nd of dimensions will be output.
+  - `@@` means the pattern of the group itself will be output other than the matched result.
 
-不支持正则表达式的转义字符\d \n ....
-不支持[] as special characters.
-不支持字符范围[A-Za-z0-9][uxxxx-uxxxx]
-空格被忽略
+### Boolean logic in one `/.../`
 
-Boolean Logic:
-Given a 3-D sequence: [D1, D2, D3]
-and
-if `/X::Y/`, then match `D1 == X && D2 == Y`, pseudo re pattern = `(?:X.Y)`
-or
-if `/X::/|/::Y/`, then match `D1 == X || D2 == Y`, pseudo re pattern = `(?:X..)|(?:..Y)`
-not
-if `/:^Z:/`, then match `D2 != Z`, pseudo re pattern = `(?:.[^Z].)`
+Given a 3-D sequence: [[D1, D2, D3], ... ],
+- AND 
+`/X::Y/` will match D1 == X && D2 == Y. 
+Its behavior looks like the ordinary RE pattern `(?:X.Y)`.
+- OR
+`/X::/|/::Y/` will match D1 == X || D2 == Y. 
+Its behavior looks like the ordinary RE pattern `(?:X..)|(?:..Y)`
+- NOT
+if `/:^P:/` will match D2 != P. 
+Its behavior looks like the ordinary RE pattern `(?:.[^P].)`.
+We can also use a negative lookahead assertion of ordinary RE, 
+to give a negative covered the following.
+e.g. `(?!/:P://Q/)/:://::/` <==> `/:^P://^Q::/`, 
+which behavior looks like the ordinary RE pattern`(?!(?:.P.))...`.
 
-we can also use a negative lookahead assertion of re, to give a negative covered the following.
-such as `(?!/:Z:/)/::/` <==> `/:^Z:/`, pseudo re pattern = `(?!(?:.Z.))...`
-尽管可以使用`(?!/:P://Q/)/::/`, `(?!/:P://Q/)...`, 推荐使用固定的否定长度，
-并且否定的数量与后面跟随的数量一致，避免因表达式不清晰而产生副作用。
+## In addition
 
-todo 逻辑有问题
-re.findall('a|b*', 'aaaaaaa')
-['a', 'a', 'a', 'a', 'a', 'a', 'a', '']
-re.findall('(a|b)*', 'aaaaaaa')
-['a', '']
-re.findall('[a|b]*', 'aaaaaaa')
-['aaaaaaa', '']
-re.findall('(a|b){0,5}', 'aaaaaaa')
-['a', 'a', '']
+- NOT support comparing the number of figures.
 
-
-
-此外
-to represent a literal backslash `\`, '\\\\' must be used in the python code 
-before the special characters to express the `\\` as the pattern string.
-不支持比较数字大小
-
+- Multi-values in one dimension is not supported now, but this feature may be improved later.
 
 """
 # todo: doc
@@ -93,12 +115,15 @@ __license__ = "Apache License 2.0"
 __version__ = "0.1.4"
 
 import re
+
 import seq_re_parse as sp
 
 
 class SeqRegex(object):
-    """
-    将词汇编码后用正则表达式匹配后，对结果进行解码
+    """encode each dimension of the pattern and sequence into a single char.
+       and then form the pattern and sequence into a linear string, 
+       which are suitable for using the ordinary regular expression (RE) to match.
+       finally, the match result will be located in the original sequence.
     """
 
     # ######################################## #
@@ -109,30 +134,32 @@ class SeqRegex(object):
 
     def __init__(self, ndim):
         if isinstance(ndim, int) and ndim > 0:
-            self._ndim = ndim  # 维度
+            self._ndim = ndim  # the number of dimensions
         else:
             raise ValueError('invalid number of dimensions')
-        self._seq_pattern = None
-        self._placeholder_dict = None
-        self._map_encode = dict()  # 编码词典：多字token->unicode单字
-        self._map_decode = dict()  # 解码词典：unicode单字->多字token
-        self._map_counter = 0  # 计数器：不同token的数量
-        self._parser = sp.SeqRegexParser()
-        self._regex = None
+        self._seq_pattern = None  # the original string of pattern
+        self._placeholder_dict = None  # the substitutions of placeholders in the pattern
+        self._map_encode = dict()  # encoding dict：a phrase (words) => a single char of unicode
+        # self._map_decode = dict()  # decoding dict：a single char of unicode => original words
+        self._map_counter = 0  # counter：the number of different phrases
+        self._parser = sp.SeqRegexParser()  # the SeqRegexPasrse object
+        self._regex = None  # the ordinary regular expression object: RegexObject
 
     @property
     def ndim(self):
+        """The number of dimensions"""
         return self._ndim
 
     @property
     def seq_pattern(self):
+        """The original string of pattern"""
         return self._seq_pattern
 
     def _clear(self):
         self._seq_pattern = None
         self._placeholder_dict = None
         self._map_encode.clear()
-        self._map_decode.clear()
+        # self._map_decode.clear()
         self._map_counter = 0
         self._parser.__init__()
         self._regex = None
@@ -144,10 +171,16 @@ class SeqRegex(object):
     # ######################################## #
 
     def _encode_str(self, decoded_str, default=None):
+        """Encode a string.
+        :param decoded_str: a string to be encoded
+        :param default: the default string to replace the string which has not been encoded
+        :return: an encoded string if default is not None else default
+        """
         if decoded_str in self._map_encode:
             return self._map_encode[decoded_str]
         elif default is None:
-            # 映射到从'中'字开始连续的unicode
+            # 映射到从'中'字开始连续的unicode字符
+            # continuously map to the unicode chars from the chinese u'中'
             # ord(u'中') = 20013
             # sys.maxunicode = 65535 or 1114111
             # so, at least nearly 35k unicode characters can be used to encode
@@ -159,13 +192,16 @@ class SeqRegex(object):
             except ValueError:
                 raise ValueError(u'too many different string')
             self._map_encode[decoded_str] = encoded_str
-            self._map_decode[encoded_str] = decoded_str
+            # self._map_decode[encoded_str] = decoded_str
             self._map_counter += 1
             return encoded_str
         else:
             return default
 
     def _encode_pattern(self):
+        """encode the original string SEQ_RE pattern into a equivalent of ordinary RE pattern.
+        :return: a ordinary RE string
+        """
         parsed = self._parser.parse(self._ndim, self._seq_pattern, **self._placeholder_dict)
         # transform _pattern_stack into pseudo regular expression string for check or test
         pattern_str_list = []
@@ -176,13 +212,13 @@ class SeqRegex(object):
                     pattern_str_list.append(self._encode_str(string))
                 elif string is not None:
                     pattern_str_list.append(string)
-        # debug
+        # for debug
         # print self._parser.dump()
         # print u''.join(pattern_str_list)
         return u''.join(pattern_str_list)
 
     def _encode_sequence(self, nd_sequence):
-        """对tokens列表编码为连续文本字符串"""
+        """encode the n-dimension sequence into a linear of string for matching the pattern"""
         self._nd_sequence = nd_sequence
         stack_encoded = []
         default_encoded_str = None if self._parser.exists_negative_set() else u'.'
@@ -198,6 +234,7 @@ class SeqRegex(object):
     # ######################################## #
 
     class SeqRegexObject(object):
+        """the class wraps the SeqRegex itself for the simplified use."""
 
         __slots__ = ('_outer',)
 
@@ -218,15 +255,28 @@ class SeqRegex(object):
             return self._outer.is_useless_for(nd_sequence)
 
     class SeqMatchObject(object):
+        """the class manages the match results that the SeqRegex returned, 
+           and the matched group can be acquired by the group_list or named_group_dict.
+        """
 
         __slots__ = ('group_list', 'named_group_dict', 'sq_re')
 
         def __init__(self, outer_class):
+            # public member: all indexed groups matched in a result,
+            # including named and unnamed groups
             self.group_list = []
+            # public member: all named groups matched in a result
             self.named_group_dict = dict()  # add index to consider as collections.OrderedDict
+            # the outer class is the SeqRegex itself
             self.sq_re = outer_class
 
         def format_group_to_str(self, group_name, trimmed=True):
+            """output a named group matched in the result, according the format string 
+               indicated after the group name in the original pattern string.
+            :param group_name: group name
+            :param trimmed: remove the group name and parentheses if trimmed == True else keep them
+            :return: a string of the matched result
+            """
             formatted_str_list = []
 
             def formatter(nd_elements):
@@ -273,6 +323,7 @@ class SeqRegex(object):
     # ######################################## #
 
     def compile(self, seq_pattern, **placeholder_dict):
+        """compile a SEQ_RE pattern into a ordinary RE object"""
         self._clear()
         self._seq_pattern = seq_pattern
         self._placeholder_dict = placeholder_dict
@@ -281,8 +332,10 @@ class SeqRegex(object):
         return self.SeqRegexObject(self)
 
     def finditer(self, seq_pattern, nd_sequence):
-        """
-        在tokens中，用规则rule进行正则表达式匹配
+        """return an iterator yielding SeqMatchObject instances 
+           over all non-overlapping matches for the SEQ_RE pattern in n-dimension sequence.
+           the matched group can be acquired by the group_list or named_group_dict 
+           of SeqMatchObject returned.
         """
         if seq_pattern != self._seq_pattern:
             self.compile(seq_pattern)
@@ -306,20 +359,22 @@ class SeqRegex(object):
             yield match_object
 
     def search(self, seq_pattern, nd_sequence):
-        """
-        在tokens中，用规则rule进行正则表达式匹配
-        如果没有命中则返回None
-        若命中 (group_list, named_group_dict)
+        """scan through n-dimension sequence looking for 
+           the first location where the SEQ_RE pattern produces a match, 
+           and return a corresponding SeqMatchObject instance.
+           return None if no match.
         """
         return next(self.finditer(seq_pattern, nd_sequence), None)
 
     def findall(self, seq_pattern, nd_sequence):
-        """not overlapping"""
+        """similar to the finditer() function."""
         return [self.finditer(seq_pattern, nd_sequence)]
 
     def is_useless_for(self, nd_sequence):
-        # for preliminary screening the seq in advanced,
-        # to check whether regular expression has no chance of success.
+        """for preliminary screening the seq in advanced,
+           to check whether regular expression has no chance of success.
+        :return: True if SEQ_RE no chance of success else False
+        """
         # for literals in the negative set,
         # not sure whether they should or should not be in the seq.
         # for literals in the positive set,
