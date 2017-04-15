@@ -5,7 +5,7 @@ Parse the syntax of sequence regular express pattern
 ====================================================
 
 Parse the original string of seq_re pattern into an queue of parsed parts, 
-and translate the syntax of each part into its equivalent of the common regular expression.
+and translate the syntax of each part into its equivalent of the ordinary regular expression.
 
 """
 
@@ -61,7 +61,7 @@ WPXXX
 
 
 class Flags(object):
-    """the function flags of the parsed pattern part"""
+    """The functional flags of the parsed pattern part"""
     EX = 'EX'  # general expression
     EXP = 'EXP'  # automatic expansion
     EXT_START = 'EXT_S'  # non-capturing group pattern start
@@ -78,7 +78,7 @@ class Flags(object):
 
 
 class SeqRegexParser(object):
-    """the class wraps the parse function, and manages the states of the global variables."""
+    """The class wraps the parse function, and manages the states of the global variables."""
 
     def __init__(self):
         self._ndim = 0  # the number of dimensions
@@ -105,17 +105,18 @@ class SeqRegexParser(object):
 
     @property
     def ndim(self):
-        """the number of dimensions"""
+        """The number of dimensions"""
         return self._ndim
 
     @property
     def pattern_str(self):
-        """the string of original pattern"""
+        """The string of original pattern"""
         return self._pattern_str
 
     @classmethod
     def _parse_indices(cls, indices_string):
-        """parse the format string
+        """Parse the format string.
+        
         :param indices_string: indices_string: `0,2:4`
         :return: return index_range_list = [(group_index_begin, group_index_end), ...]
         """
@@ -132,11 +133,12 @@ class SeqRegexParser(object):
         return index_range_list
 
     def _parse_group_identifier(self, identifier_string):
-        """parse the group identifier
+        """Parse the group identifier.
         # `name` => name, [(0, ndim)]
         # `name@` =>name, [(0, ndim)]
         # `name@format_string` => name, [(group_index_begin, group_index_end), ...]
-        # `name@@` => name, None        
+        # `name@@` => name, None
+        
         :param identifier_string: name, name@indices_string, name@@
         :return: ('group_name', [(group_index_begin, group_index_end), ...])
         """
@@ -174,8 +176,9 @@ class SeqRegexParser(object):
         return name, format_indices
 
     def _parse_placeholder(self, placeholder_name):
-        """parse placeholder name in the pattern string, 
-           and substitute it by a set of placeholder values through looking up placeholder_dict
+        """Parse placeholder name in the pattern string, 
+        and substitute it by a set of placeholder values through looking up placeholder_dict
+        
         :param placeholder_name: string
         :return: [substitutions of str type]
         """
@@ -191,16 +194,16 @@ class SeqRegexParser(object):
         return str_list
 
     def _parse_element(self, negative_flag, element_set):
-        """parse the element 
-           as the following:
+        """Parse the element as the following:
         #  None  <==>   `|`
         #  `A`   <==>  `A|`  <==>  `|A`
         # `^A`   <==> `^A|`  <==> `^|A`
         #  `A|B` !<=> `^A|B`
         # `\^`    ==>  ok
         #  `^`   <==>  `^|`     ==> error
-        # given that A and B are the values of the same one element.       
-        :param negative_flag: the position of negative sign related
+        # given that A and B are the values of the same one element.
+        
+        :param negative_flag: The position of negative sign related
         :param element_set: [([char1, char2, ...], pos), ...]
         :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]
         """
@@ -249,8 +252,7 @@ class SeqRegexParser(object):
         return
 
     def _parse_tuple(self):
-        """parse the tuple pattern
-           as the following:
+        """Parse the tuple pattern as the following:
         # which is delimited by `/.../` excluding the delimited `/` and `/`:
         # `/X:/` `/X:Y/` `/:Y/`
         # `//` `/|/` `/:/` `/|:/``/:|/`
@@ -268,6 +270,7 @@ class SeqRegexParser(object):
         # => add an element value to set
         # when `^`
         # => negative all elements if it's the first
+        
         :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]
         """
         source = self._pattern_tokenized
@@ -338,8 +341,8 @@ class SeqRegexParser(object):
         return
 
     def _parse_group(self):
-        """parse the group pattern inside the parentheses
-           which is delimited by `(...)` including the delimited `(` and `)`:
+        """Parse the group pattern inside the parentheses 
+        which is delimited by `(...)` including the delimited `(` and `)`:
         # => separate the group extension prefix:
         #   `(?:...)`
         #   `(?P<name>...)`
@@ -354,6 +357,7 @@ class SeqRegexParser(object):
         # => separate the format indices of a named group from its name: `<name@0,2:4>`
         # => only `(pattern)` and `(?P<name>pattern)` will be counted as capturing groups,
         #    and assigned the group index.
+        
         :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]
         """
         source = self._pattern_tokenized
@@ -452,13 +456,14 @@ class SeqRegexParser(object):
         return
 
     def _parse_sub(self):
-        """parse the sub pattern `...`
-           which maybe contain the group pattern `(...)` or the tuple pattern `/.../`:
+        """Parse the sub pattern `...`
+        which maybe contain the group pattern `(...)` or the tuple pattern `/.../`:
         # => check invalid char outside of comments: [ ] \
         # => remove redundant char: whitespace
         # => count continuous dots separately,
         #    not replace regex pattern '.\+' => '(?:' + '.' * ndim + ')'
         # => deal with delimiter: `(group pattern)`, `/tuple pattern/`
+        
         :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]
         """
         source = self._pattern_tokenized
@@ -512,8 +517,9 @@ class SeqRegexParser(object):
         return
 
     def _parse_seq(self):
-        """parse the whole pattern `...`
-           for the pattern `...)...`, parser will be stopped at `)` and an error will be raised.
+        """Parse the whole pattern `...`.
+        For the pattern `...)...`, parser will be stopped at `)` and an error will be raised.
+        
         :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]
         """
         source = self._pattern_tokenized
@@ -528,12 +534,14 @@ class SeqRegexParser(object):
         return parsed
 
     def parse(self, ndim, pattern_str, **placeholder_dict):
-        """the main entry of functions.
-           parse the pattern by translating its syntax into the equivalent in regular expression
-           and return a pattern stack for future encode.       
-        :param ndim: the number of dimensions
-        :param pattern_str: the string of original pattern
-        :param placeholder_dict: the substitutions of placeholders in the pattern
+        """The main entry of functions.  
+        
+        Parse the pattern by translating its syntax into the equivalent in regular expression 
+        and return a pattern stack for future encode.
+        
+        :param ndim: The number of dimensions
+        :param pattern_str: The string of original pattern
+        :param placeholder_dict: The substitutions of placeholders in the pattern
         :return: parsed = [(Flag, parsed_pattern, begin_pos), ...] 
         """
         self._set(ndim, pattern_str, placeholder_dict)
@@ -541,9 +549,10 @@ class SeqRegexParser(object):
         return parsed
 
     def dump(self):
-        """transform self._pattern_stack into pseudo regular expression string 
-           for debugging or testing
-        :return: a string of parsed pattern similar to the common regular expression
+        """Transform self._pattern_stack into pseudo regular expression string 
+        for debugging or testing.
+        
+        :return: A string of parsed pattern similar to the ordinary RE
         """
         dump_stack = []
         if self._pattern_stack:
@@ -555,9 +564,10 @@ class SeqRegexParser(object):
         return u''.join(dump_stack)
 
     def get_pattern_by_name(self, group_name):
-        """get original pattern string determined by group name
-        :param group_name: the group name
-        :return: the substring of original pattern
+        """Get original pattern string determined by group name.
+        
+        :param group_name: The group name
+        :return: The substring of original pattern
         """
         start = end = step = -1
         for flag, string, pos in self._pattern_stack:
@@ -582,9 +592,10 @@ class SeqRegexParser(object):
             raise ValueError('unknown group name')
 
     def get_pattern_by_id(self, group_index):
-        """get original pattern string determined by group index
-        :param group_index: the index of group
-        :return: the substring of original pattern
+        """Get original pattern string determined by group index.
+        
+        :param group_index: The index of group
+        :return: The substring of original pattern
         """
         start = end = step = -1
         group_id = 0
@@ -618,7 +629,8 @@ class SeqRegexParser(object):
             raise ValueError('group index out of range')
 
     def exists_negative_set(self):
-        """check whether there exists negative set
+        """Check whether there exists negative set.
+        
         :return: True if exists else False
         """
         # fixme: if exits ?! ?<!
@@ -630,7 +642,8 @@ class SeqRegexParser(object):
         return exists
 
     def get_positive_literal_sets(self):
-        """get literals grouped by sets which do not have negative sign
+        """Get literals grouped by sets which do not have negative sign.
+        
         :return: literal_set_list = ['str', ['str', 'str'], ....]
         """
         # fixme: sets come after ?! ?<! ==> - - = + , - + = -
@@ -657,7 +670,7 @@ class SeqRegexParser(object):
 
 
 class Tokenizer(object):
-    """the class to help iterate the chars of original string of pattern"""
+    """The class to help iterate the chars of original string of pattern"""
 
     # this class is based on the following but modified:
     # https://github.com/python/cpython/blob/master/Lib/sre_parse.py
