@@ -55,6 +55,11 @@ html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+	touch $(BUILDDIR)/html/.nojekyll
+# Sphinx save static files into a directory names _static and you can't change that.
+# On the other hand, github processes the incoming html with Jekyll
+# which believes top level folders starting with an underscore are special
+# and does not let their content be accessible to the server.
 
 .PHONY: dirhtml
 dirhtml:
