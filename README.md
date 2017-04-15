@@ -25,14 +25,12 @@ the SEQ_RE patterns is written like one of the examples:
 (?P<name@0,1,2>/::PERSON/) /:VERB be:/ /born/ /on/ (?P<birthday@0:3>(/::NUMBER|MONTH/|/-/){2,3})
 ```
 
-1. The syntax of SEQ_RE pattern
--------------------------------
+## 1. The syntax of SEQ_RE pattern
 
 A SEQ_RE pattern most looks like the ordinary regular express (RE) used in Python,
 in which the delimiters ``/.../`` is to indicate a tuple of n dimensions.
 
-1.1 Inside ``/.../``
-++++++++++++++++++++
+### 1.1 Inside ``/.../``
 
 - ``/``
 
@@ -71,8 +69,7 @@ in which the delimiters ``/.../`` is to indicate a tuple of n dimensions.
   ``\\`` should be used in the plain text
   that is to say ``'\\\\'`` must be used in the python code.
 
-1.2 Outside ``/.../``
-+++++++++++++++++++++
+### 1.2 Outside ``/.../``
 
 - The special meanings of special characters in the ordinary RE are only available here,
   but with the limitations discussed below.
@@ -105,8 +102,7 @@ in which the delimiters ``/.../`` is to indicate a tuple of n dimensions.
 
   3. ``@@`` means the pattern of the group itself will be output other than the matched result.
 
-1.3 Boolean logic in the ``/.../``
-++++++++++++++++++++++++++++++++++
+### 1.3 Boolean logic in the ``/.../``
 
 Given a 3-D sequence ``[[s1, s2, s3], ... ]``,
 
@@ -130,14 +126,13 @@ Given a 3-D sequence ``[[s1, s2, s3], ... ]``,
   e.g. ``(?!/:P://Q/)/:://::/`` <==> ``/:^P://^Q::/``,
   which behavior looks like the ordinary RE pattern ``(?!(?:.P.))...``.
 
-2. Notes
---------
+## 2. Notes
 
 ***Not*** support comparing the number of figures.
 
 Multi-values in one dimension is not supported now, but this feature may be improved later.
 
-## Examples
+## 3. Examples
 
 The usage of seq_re module:
 
