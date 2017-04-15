@@ -1,0 +1,132 @@
+# seq_re_parse.py test case
+
+# test _parse_sub
+0.23	0(?:...)23
+(.23	unbalanced parenthesis `(` at position 0
+).23	unbalanced parenthesis `)` at position 0
+012(	unbalanced parenthesis `(` at position 3
+012)	unbalanced parenthesis `)` at position 3
+012(456	unbalanced parenthesis `(` at position 3
+012)456	unbalanced parenthesis `)` at position 3
+012\456	invalid escape expression `\` at position 3
+012345[	invalid set indicator `[` at position 6
+]123456	invalid set indicator `]` at position 0
+
+# test _parse_group
+## group
+(123)	(123)
+(123)56	(123)56
+0(2)4	0(2)4
+## group and extension
+(?:3)5	(?:3)5
+(?:34)	(?:34)
+(?:)4	(?:)4
+(?:34	unbalanced parenthesis `(` at position 0
+(?:	unbalanced parenthesis `(` at position 0
+
+(?P<45>78)0	(?P<45>78)0
+(?P<45>78	unbalanced parenthesis `(` at position 0
+(?<)4	unknown extension `?<)` at position 1
+(?<345	unknown extension `?<3` at position 1
+(?<	unexpected end of pattern at position 3
+
+(?P=45)7	(?P=45)7
+(?P=45	missing `)`, unterminated characters at position 4
+
+(?#34)6	6
+(?#)4	4
+(?#34	missing `)`, unterminated comment at position 0
+(?#	missing `)`, unterminated comment at position 0
+
+(?=34)6	(?=34)6
+(?=)4	(?=)4
+(?=34	unbalanced parenthesis `(` at position 0
+
+(?<=45)7	(?<=45)7
+(?<=)5	(?<=)5
+(?<=45	unbalanced parenthesis `(` at position 0
+
+(?(34)67)9	(?(34)67)9
+(?(34)67|90)2	(?(34)67|90)2
+(?(34)67	unbalanced parenthesis `(` at position 0
+(?(34	missing `)`, unterminated characters at position 3
+
+(?23)5	unknown extension `?2` at position 1
+(?23	unknown extension `?2` at position 1
+(?)	unknown extension `?)` at position 1
+(?	unexpected end of pattern at position 2
+
+## nested group
+0(2)4(6)(9)1(3(5)7)9	0(2)4(6)(9)1(3(5)7)9
+(1(3)5)	(1(3)5)
+(1(3)5	unbalanced parenthesis `(` at position 0
+0(2)4)	unbalanced parenthesis `)` at position 5
+(1(3	unbalanced parenthesis `(` at position 2
+0)2)	unbalanced parenthesis `)` at position 1
+0(?P<56>8(?P<34>6))9	0(?P<56>8(?P<34>6))9
+
+# _parse_tuple
+## closed tuple
+0/2:4:6/8	0(?:"2""4""6")8
+0(/34:6:8/)0	0((?:"34""6""8"))0
+0(?P<56>/90:23:56/)90	0(?P<56>(?:"90""23""56"))90
+/1:3:5:7/	out of dimension range at position 7
+/1:3:5:/	out of dimension range at position 7
+/1:3:5/	(?:"1""3""5")
+/1:3:/	(?:"1""3".)
+/:2:4/	(?:."2""4")
+/:2:/	(?:."2".)
+/::3/	(?:.."3")
+/1::/	(?:"1"..)
+/:2/	(?:."2".)
+/1:/	(?:"1"..)
+/1/	(?:"1"..)
+.123	(?:...)123
+//	(?:...)
+/:/	(?:...)
+/::/	(?:...)
+/\:\/\|\\/0	(?:":/|\"..)0
+/\:\/\|\\9/1	(?:":/|\9"..)1
+/\:\/\|\8/0	(?:":/|\8"..)0
+/.()[]*+?/	(?:".()[]*+?"..)
+
+## unclosed tuple
+0(?P<56>/90:23:56)90	unbalanced slash `/` at position 8
+/1:3:5:7	out of dimension range at position 7
+/1:3:5:	out of dimension range at position 7
+/1:3:5	unbalanced slash `/` at position 0
+/1:3:	unbalanced slash `/` at position 0
+/:2:4	unbalanced slash `/` at position 0
+/:2:	unbalanced slash `/` at position 0
+/::3	unbalanced slash `/` at position 0
+/1::	unbalanced slash `/` at position 0
+/1	unbalanced slash `/` at position 0
+/	unbalanced slash `/` at position 0
+/:	unbalanced slash `/` at position 0
+
+# test _parse_element with boolean logic
+/1|3/	(?:["1""3"]..)
+/1|/	(?:"1"..)
+/|2/	(?:"2"..)
+/|/	(?:...)
+/^2|4^:7^9:^2/	(?:[^"2""4^"]"7^9"[^"2"])
+/^2/	(?:[^"2"]..)
+/^2|/	(?:[^"2"]..)
+/^|3/	(?:[^"3"]..)
+/^|/	unexpected negative sign `^` at position 1
+/^/	unexpected negative sign `^` at position 1
+/1:\^:6/	(?:"1""^""6")
+
+# test arbitrary
+
+(/::PERSON/ +) /was|is/ /an/?.{0, 5} /painter|drawing artist/ 	((?:.."PERSON")+)(?:["was""is"]..)(?:"an"..)?(?:...){0,5}(?:["painter""drawing artist"]..)
+
+( /::PERSON/). /:verb_be/... /born/ /on/ (/::DATE/)..	((?:.."PERSON"))(?:...)(?:."verb_be".)(?:...)(?:...)(?:...)(?:"born"..)(?:"on"..)((?:.."DATE"))(?:...)(?:...)
+
+( /::CONCEPT/).{0, 5} /:^|包括|^|涉\及|\/\:\|/.{0, 5} /::PRODUCT|CONCEPT/	((?:.."CONCEPT"))(?:...){0,5}(?:.[^"包括""^""涉\及""/:|"].)(?:...){0,5}(?:..["PRODUCT""CONCEPT"])
+
+(( /::CONCEPT/).{0, 5}( /:verb:/ )).{0, 5} /::PRODUCT/	(((?:.."CONCEPT"))(?:...){0,5}((?:."verb".)))(?:...){0,5}(?:.."PRODUCT")
+
+(/:number:/ +) ( /\./ ) ( /:number:/ +)	((?:."number".)+)((?:"\."..))((?:."number".)+)
+
+///::\|//:|://:abc|//:abc://::^abc|//:abc^|://::^a//::^abc//\^//\.//./	(?:...)(?:.."|")(?:...)(?:."abc".)(?:."abc".)(?:..[^"abc"])(?:."abc^".)(?:..[^"a"])(?:..[^"abc"])(?:"^"..)(?:"\."..)(?:"."..)

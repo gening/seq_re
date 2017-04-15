@@ -1,0 +1,847 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>seq_re_parse &#8212; seq_re  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">seq_re  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for seq_re_parse</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding:utf-8</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Parse the syntax of sequence regular express pattern</span>
+<span class="sd">====================================================</span>
+
+<span class="sd">Parse the original string of seq_re pattern into an queue of parsed parts, </span>
+<span class="sd">and translate the syntax of each part into its equivalent of the ordinary regular expression.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;GE Ning &lt;https://github.com/gening/seq_regex&gt;&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright (C) 2017 GE Ning&quot;</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;Apache License 2.0&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1.4&quot;</span>
+
+<span class="c1"># todo: deal with multi-value elements in the sequence</span>
+<span class="c1"># todo: assign an default name uniquely for group</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">multi-value elements in the sequence</span>
+<span class="sd">=&gt; unfold multi-values as new dimensions of elements</span>
+
+<span class="sd">pattern:</span>
+<span class="sd">element match a =&gt;</span>
+<span class="sd">(?![^a]{3}).{3}</span>
+<span class="sd">match</span>
+<span class="sd">x 123</span>
+<span class="sd">v a23</span>
+<span class="sd">v 1a3</span>
+<span class="sd">v 12a</span>
+<span class="sd">v aa3</span>
+<span class="sd">v 1aa</span>
+<span class="sd">v a2a</span>
+<span class="sd">v aaa</span>
+
+<span class="sd">element match ^a =&gt;</span>
+<span class="sd">(?![a]{3}).{3}</span>
+<span class="sd">match</span>
+<span class="sd">v 123</span>
+<span class="sd">v a23</span>
+<span class="sd">v 1a3</span>
+<span class="sd">v 12a</span>
+<span class="sd">v aa3</span>
+<span class="sd">v 1aa</span>
+<span class="sd">v a2a</span>
+<span class="sd">x aaa</span>
+
+<span class="sd">element match . =&gt;</span>
+<span class="sd">.{3}</span>
+
+<span class="sd">sequence:</span>
+<span class="sd">the 3rd dimension is 3 multi-values</span>
+<span class="sd">tup = [W,P,(A,B,C)] =&gt;</span>
+<span class="sd">extend</span>
+<span class="sd">WPABC</span>
+
+<span class="sd">tup = [W,P,X] =&gt;</span>
+<span class="sd">extend</span>
+<span class="sd">WPXXX</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="Flags"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.Flags">[docs]</a><span class="k">class</span> <span class="nc">Flags</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The functional flags of the parsed pattern part&quot;&quot;&quot;</span>
+    <span class="n">EX</span> <span class="o">=</span> <span class="s1">&#39;EX&#39;</span>  <span class="c1"># general expression</span>
+    <span class="n">EXP</span> <span class="o">=</span> <span class="s1">&#39;EXP&#39;</span>  <span class="c1"># automatic expansion</span>
+    <span class="n">EXT_START</span> <span class="o">=</span> <span class="s1">&#39;EXT_S&#39;</span>  <span class="c1"># non-capturing group pattern start</span>
+    <span class="n">EXT_END</span> <span class="o">=</span> <span class="s1">&#39;EXT_E&#39;</span>  <span class="c1"># non-capturing group pattern end</span>
+    <span class="n">GROUP_START</span> <span class="o">=</span> <span class="s1">&#39;GRP_S&#39;</span>  <span class="c1"># capturing group pattern start</span>
+    <span class="n">GROUP_END</span> <span class="o">=</span> <span class="s1">&#39;GRP_E&#39;</span>  <span class="c1"># capturing group pattern end</span>
+    <span class="n">GROUP_NAME</span> <span class="o">=</span> <span class="s1">&#39;GRP_NAM&#39;</span>  <span class="c1"># group name define</span>
+    <span class="n">TUPLE_START</span> <span class="o">=</span> <span class="s1">&#39;TUP_S&#39;</span>  <span class="c1"># tuple pattern start</span>
+    <span class="n">TUPLE_END</span> <span class="o">=</span> <span class="s1">&#39;TUP_E&#39;</span>  <span class="c1"># tuple pattern end</span>
+    <span class="n">SET_START</span> <span class="o">=</span> <span class="s1">&#39;SET_S&#39;</span>  <span class="c1"># tuple pattern start</span>
+    <span class="n">SET_END</span> <span class="o">=</span> <span class="s1">&#39;SET_E&#39;</span>  <span class="c1"># tuple pattern end</span>
+    <span class="n">SET_NEG</span> <span class="o">=</span> <span class="s1">&#39;SET_NEG&#39;</span>  <span class="c1"># negative sign</span>
+    <span class="n">LITERAL</span> <span class="o">=</span> <span class="s1">&#39;LITERAL&#39;</span>  <span class="c1"># need to be encoded</span></div>
+
+
+<div class="viewcode-block" id="SeqRegexParser"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.SeqRegexParser">[docs]</a><span class="k">class</span> <span class="nc">SeqRegexParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The class wraps the parse function, and manages the states of the global variables.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># the number of dimensions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_str</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the string of original pattern</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_placeholder_dict</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the substitutions of placeholders in the pattern</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_tokenized</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the Tokenizer of pattern to help iterate the chars of it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the queue of substrings of pattern, which has been parsed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">named_group_format_indices</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the format indices of name groups</span>
+
+    <span class="k">def</span> <span class="nf">_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ndim</span><span class="p">,</span> <span class="n">pattern_str</span><span class="p">,</span> <span class="n">placeholder_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;initialize the class&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ndim</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span> <span class="o">=</span> <span class="n">ndim</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;invalid number of dimensions&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pattern_str</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_str</span> <span class="o">=</span> <span class="n">pattern_str</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;invalid pattern string&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_placeholder_dict</span> <span class="o">=</span> <span class="n">placeholder_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_tokenized</span> <span class="o">=</span> <span class="n">Tokenizer</span><span class="p">(</span><span class="n">pattern_str</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">named_group_format_indices</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ndim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The number of dimensions&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pattern_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The string of original pattern&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_str</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_parse_indices</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">indices_string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse the format string.</span>
+<span class="sd">        </span>
+<span class="sd">        :param indices_string: indices_string: `0,2:4`</span>
+<span class="sd">        :return: return index_range_list = [(group_index_begin, group_index_end), ...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index_range_list</span> <span class="o">=</span> <span class="n">indices_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">indices</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">index_range_list</span><span class="p">):</span>
+            <span class="n">index_list</span> <span class="o">=</span> <span class="n">indices</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">index_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">index_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="n">index_range_list</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">index_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">index_range_list</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">index_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()),</span> <span class="nb">int</span><span class="p">(</span><span class="n">index_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span>
+        <span class="k">return</span> <span class="n">index_range_list</span>
+
+    <span class="k">def</span> <span class="nf">_parse_group_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier_string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse the group identifier.</span>
+<span class="sd">        # `name` =&gt; name, [(0, ndim)]</span>
+<span class="sd">        # `name@` =&gt;name, [(0, ndim)]</span>
+<span class="sd">        # `name@format_string` =&gt; name, [(group_index_begin, group_index_end), ...]</span>
+<span class="sd">        # `name@@` =&gt; name, None</span>
+<span class="sd">        </span>
+<span class="sd">        :param identifier_string: name, name@indices_string, name@@</span>
+<span class="sd">        :return: (&#39;group_name&#39;, [(group_index_begin, group_index_end), ...])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_tokenized</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span>
+        <span class="n">format_indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">identifier_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;@&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;missing group name&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">identifier_string</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># A</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">format_indices</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span><span class="p">))</span>
+        <span class="c1"># A@ =&gt; [&#39;A&#39;, &#39;&#39;]</span>
+        <span class="c1"># A@B =&gt; [&#39;A&#39;, &#39;B&#39;]</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">format_string</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">format_string</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">format_indices</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">format_string</span> <span class="o">!=</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">format_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_indices</span><span class="p">(</span><span class="n">format_string</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;invalid format indices `</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">format_string</span><span class="p">,</span>
+                                       <span class="nb">len</span><span class="p">(</span><span class="n">format_string</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># A@@ =&gt; [&#39;A&#39;, &#39;&#39;, &#39;&#39;]</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">items</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="n">format_indices</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># A@B@C =&gt; [&#39;A&#39;, &#39;B&#39;, &#39;C&#39;]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">format_string</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;@&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;invalid format indices `</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">format_string</span><span class="p">,</span>
+                               <span class="nb">len</span><span class="p">(</span><span class="n">format_string</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span><span class="p">,</span> <span class="n">format_indices</span>
+
+    <span class="k">def</span> <span class="nf">_parse_placeholder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">placeholder_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse placeholder name in the pattern string, </span>
+<span class="sd">        and substitute it by a set of placeholder values through looking up placeholder_dict</span>
+<span class="sd">        </span>
+<span class="sd">        :param placeholder_name: string</span>
+<span class="sd">        :return: [substitutions of str type]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">str_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># placeholder name</span>
+        <span class="n">placeholder_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_placeholder_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">placeholder_name</span><span class="p">,</span> <span class="n">placeholder_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">placeholder_set</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
+            <span class="c1"># list, set</span>
+            <span class="n">str_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">placeholder_set</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># a single string</span>
+            <span class="n">str_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">placeholder_set</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">str_list</span>
+
+    <span class="k">def</span> <span class="nf">_parse_element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">negative_flag</span><span class="p">,</span> <span class="n">element_set</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse the element as the following:</span>
+<span class="sd">        #  None  &lt;==&gt;   `|`</span>
+<span class="sd">        #  `A`   &lt;==&gt;  `A|`  &lt;==&gt;  `|A`</span>
+<span class="sd">        # `^A`   &lt;==&gt; `^A|`  &lt;==&gt; `^|A`</span>
+<span class="sd">        #  `A|B` !&lt;=&gt; `^A|B`</span>
+<span class="sd">        # `\^`    ==&gt;  ok</span>
+<span class="sd">        #  `^`   &lt;==&gt;  `^|`     ==&gt; error</span>
+<span class="sd">        # given that A and B are the values of the same one element.</span>
+<span class="sd">        </span>
+<span class="sd">        :param negative_flag: The position of negative sign related</span>
+<span class="sd">        :param element_set: [([char1, char2, ...], pos), ...]</span>
+<span class="sd">        :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_tokenized</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span>
+
+        <span class="k">if</span> <span class="n">negative_flag</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">negatived</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">negatived</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># avoid `placeholder|placeholder` =&gt; [[&quot;p11&quot;&quot;p12&quot;][&quot;p2&quot;]]</span>
+        <span class="c1"># in which escaped `[` and `]` are misunderstand.</span>
+        <span class="c1"># replaced by [&quot;p11&quot;&quot;p12&quot;&quot;p2&quot;]</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">value_chars</span><span class="p">,</span> <span class="n">source_pos</span> <span class="ow">in</span> <span class="n">element_set</span><span class="p">:</span>
+            <span class="n">value_str</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value_chars</span><span class="p">)</span>  <span class="c1"># value_chars = [a1, a2, ...]</span>
+            <span class="k">if</span> <span class="n">value_str</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_placeholder_dict</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_placeholder</span><span class="p">(</span><span class="n">value_str</span><span class="p">):</span>
+                    <span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">v</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">value_str</span><span class="p">,</span> <span class="n">source_pos</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># nothing to be negatived</span>
+            <span class="k">if</span> <span class="n">negatived</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unexpected negative sign `^`&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">negative_flag</span><span class="p">)</span>
+            <span class="c1"># `.`</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXP</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">negatived</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># `A`</span>
+            <span class="n">value_str</span><span class="p">,</span> <span class="n">source_pos</span> <span class="o">=</span> <span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">LITERAL</span><span class="p">,</span> <span class="n">value_str</span><span class="p">,</span> <span class="n">source_pos</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># `[AB]` `[^A]` `[^AB]`</span>
+            <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">SET_START</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;[&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">negatived</span><span class="p">:</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">SET_NEG</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;^&#39;</span><span class="p">,</span> <span class="n">negative_flag</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">value_str</span><span class="p">,</span> <span class="n">source_pos</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">LITERAL</span><span class="p">,</span> <span class="n">value_str</span><span class="p">,</span> <span class="n">source_pos</span><span class="p">])</span>
+            <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">SET_END</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;]&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+
+        <span class="c1"># clear element_set</span>
+        <span class="n">element_set</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">_parse_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse the tuple pattern as the following:</span>
+<span class="sd">        # which is delimited by `/.../` excluding the delimited `/` and `/`:</span>
+<span class="sd">        # `/X:/` `/X:Y/` `/:Y/`</span>
+<span class="sd">        # `//` `/|/` `/:/` `/|:/``/:|/`</span>
+<span class="sd">        # given that X and Y are elements.</span>
+<span class="sd">        # in that all `(` and `)` in the elements are parsed as plain text,</span>
+<span class="sd">        # which have no syntax meaning, the nested recursion of this function is not required.</span>
+<span class="sd">        #</span>
+<span class="sd">        # when `/`</span>
+<span class="sd">        # =&gt; parse element</span>
+<span class="sd">        # =&gt; add . if dim_index &lt; ndim</span>
+<span class="sd">        # when `:`</span>
+<span class="sd">        # =&gt; parse element</span>
+<span class="sd">        # =&gt; dim_index ++</span>
+<span class="sd">        # when `|`</span>
+<span class="sd">        # =&gt; add an element value to set</span>
+<span class="sd">        # when `^`</span>
+<span class="sd">        # =&gt; negative all elements if it&#39;s the first</span>
+<span class="sd">        </span>
+<span class="sd">        :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_tokenized</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span>
+        <span class="n">dim_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">element_list</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># [(value_list, pos), ...] = [([char1, char2, ...], pos), ...]</span>
+        <span class="n">negative_flag</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="c1"># open the `/`</span>
+        <span class="n">start_pos</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">TUPLE_START</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;(?:&#39;</span><span class="p">,</span> <span class="n">start_pos</span><span class="p">])</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">this</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">next</span>
+            <span class="n">this_pos</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span>
+            <span class="k">if</span> <span class="n">this</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># unexpected end of tuple pattern</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unbalanced slash `/`&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">start_pos</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">this</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;/&#39;</span><span class="p">:</span>  <span class="c1"># terminator = u&#39;/&#39;</span>
+                <span class="k">if</span> <span class="n">negative_flag</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">element_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_parse_element</span><span class="p">(</span><span class="n">negative_flag</span><span class="p">,</span> <span class="n">element_list</span><span class="p">)</span>
+                    <span class="c1"># negative_flag = -1</span>
+                    <span class="n">dim_index</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="c1"># check the consistency of dimensions</span>
+                <span class="c1"># /a:bc:def/</span>
+                <span class="c1"># ^ ^  ^   ^</span>
+                <span class="c1"># 0 1  2   3</span>
+                <span class="n">dim_vacancy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span> <span class="o">-</span> <span class="n">dim_index</span>
+                <span class="k">if</span> <span class="n">dim_vacancy</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXP</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;.&#39;</span> <span class="o">*</span> <span class="n">dim_vacancy</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+                <span class="k">break</span>  <span class="c1"># end of tuple pattern</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;:&#39;</span><span class="p">:</span>
+                <span class="c1"># if terminator !=u&#39;/&#39;:</span>
+                <span class="c1">#     raise source.error(u&#39;invalid `:` out inside `/.../`&#39;, 1)</span>
+                <span class="c1"># parse the element</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parse_element</span><span class="p">(</span><span class="n">negative_flag</span><span class="p">,</span> <span class="n">element_list</span><span class="p">)</span>
+                <span class="n">negative_flag</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="c1"># move dim_index forwards</span>
+                <span class="n">dim_index</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">dim_index</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;out of dimension range&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;|&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">next</span> <span class="ow">not</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;|:/&#39;</span><span class="p">:</span>
+                    <span class="c1"># nothing to be alternated previously</span>
+                    <span class="c1"># if len(element_list) == 0:</span>
+                    <span class="c1">#    ignore raising source.error(u&#39;unexpected alternate sign `|`&#39;)</span>
+                    <span class="c1"># new value of the element</span>
+                    <span class="n">element_list</span><span class="o">.</span><span class="n">append</span><span class="p">(([],</span> <span class="n">this_pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;^&#39;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">element_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">negative_flag</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># `^` has no special meaning if it’s not the first character in the set.</span>
+                <span class="c1"># negatived = True</span>
+                <span class="n">negative_flag</span> <span class="o">=</span> <span class="n">this_pos</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">element_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">element_list</span><span class="o">.</span><span class="n">append</span><span class="p">(([],</span> <span class="n">this_pos</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">this</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">this</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;/:|</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">:</span>
+                        <span class="n">element_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">elif</span> <span class="n">this</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;^&#39;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">element_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="c1"># so only if it&#39;s the first character, `^` can be escaped.</span>
+                        <span class="n">element_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">element_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">element_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
+        <span class="c1"># close the `/`</span>
+        <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">TUPLE_END</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span><span class="p">])</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">_parse_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse the group pattern inside the parentheses </span>
+<span class="sd">        which is delimited by `(...)` including the delimited `(` and `)`:</span>
+<span class="sd">        # =&gt; separate the group extension prefix:</span>
+<span class="sd">        #   `(?:...)`</span>
+<span class="sd">        #   `(?P&lt;name&gt;...)`</span>
+<span class="sd">        #   `(?P=name)`</span>
+<span class="sd">        #   `(?#comment)`</span>
+<span class="sd">        #   `(?(id/name)...)`</span>
+<span class="sd">        #   `(?=...)`</span>
+<span class="sd">        #   `(?!...)`</span>
+<span class="sd">        #   `(?&lt;=...)`</span>
+<span class="sd">        #   `(?&lt;!...)`</span>
+<span class="sd">        # =&gt; if there is a sub pattern, then parse sub pattern</span>
+<span class="sd">        # =&gt; separate the format indices of a named group from its name: `&lt;name@0,2:4&gt;`</span>
+<span class="sd">        # =&gt; only `(pattern)` and `(?P&lt;name&gt;pattern)` will be counted as capturing groups,</span>
+<span class="sd">        #    and assigned the group index.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_tokenized</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># capturing group flag</span>
+        <span class="c1"># open group</span>
+        <span class="n">start_pos</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_START</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="n">start_pos</span><span class="p">])</span>
+        <span class="c1"># group content</span>
+        <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;?&#39;</span><span class="p">):</span>
+            <span class="c1"># this is an extension notation</span>
+            <span class="n">char</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">char</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unexpected end of pattern&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;:&#39;</span><span class="p">:</span>
+                <span class="n">group</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="c1"># non-capturing group</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?:&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;P&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;&lt;&#39;</span><span class="p">):</span>
+                    <span class="n">group</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">parsed</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_START</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?P&lt;&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">3</span><span class="p">])</span>
+                    <span class="c1"># named group: skip forward to end of name and format</span>
+                    <span class="n">identifier</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_until</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;&gt;&#39;</span><span class="p">)</span>  <span class="c1"># terminator will be consumed silently</span>
+                    <span class="n">name</span><span class="p">,</span> <span class="n">format_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_group_identifier</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">named_group_format_indices</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">format_indices</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_NAME</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;&gt;&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;=&#39;</span><span class="p">):</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?P=&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">3</span><span class="p">])</span>
+                    <span class="c1"># named back reference</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_until</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># terminator will be not consumed</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)])</span>
+                    <span class="c1"># close the group</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_END</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span><span class="p">])</span>
+                    <span class="c1"># not contain any pattern</span>
+                    <span class="k">return</span>
+            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;#&#39;</span><span class="p">:</span>
+                <span class="c1"># group = False</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># pop the start of group</span>
+                <span class="c1"># comment group ignores everything including `/.../`</span>
+                <span class="c1"># source.get_until(u&#39;)&#39;, skip=False)  # terminator will be not consumed</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">next</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;missing `)`, unterminated comment&quot;</span><span class="p">,</span>
+                                           <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">start_pos</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                        <span class="k">break</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="c1"># not contain any pattern</span>
+                <span class="k">return</span>
+            <span class="k">elif</span> <span class="n">char</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;=!&lt;&#39;</span><span class="p">:</span>
+                <span class="n">group</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="c1"># lookahead assertions</span>
+                <span class="k">if</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;&lt;&#39;</span><span class="p">:</span>
+                    <span class="n">char</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">char</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unexpected end of pattern&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">char</span> <span class="ow">not</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;=!&#39;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unknown extension `?&lt;</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">char</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">char</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="n">char</span>
+                <span class="n">char</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;?&#39;</span> <span class="o">+</span> <span class="n">char</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">char</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)])</span>
+            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;(&#39;</span><span class="p">:</span>
+                <span class="n">group</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?(&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span>
+                <span class="c1"># conditional back reference group</span>
+                <span class="n">cond_name</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_until</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">)</span>  <span class="c1"># terminator will be consumed silently</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">cond_name</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond_name</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unknown extension `?</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">char</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># parsed.append([Flags.EX, u&#39;?&#39; + char, source.pos - 2])</span>
+                <span class="c1"># pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># without extension notation as an unnamed group</span>
+            <span class="n">group</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">parsed</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_START</span>
+            <span class="k">pass</span>
+        <span class="c1"># group contains a sub pattern</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_sub</span><span class="p">()</span>
+        <span class="c1"># close group</span>
+        <span class="k">if</span> <span class="n">group</span><span class="p">:</span>
+            <span class="n">start_flag</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_START</span>
+            <span class="n">end_flag</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_END</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">start_flag</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">EXT_START</span>
+            <span class="n">end_flag</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">EXT_END</span>
+        <span class="k">if</span> <span class="n">parsed</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">start_flag</span><span class="p">:</span>
+            <span class="n">parsed</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">end_flag</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span><span class="p">])</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">_parse_sub</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse the sub pattern `...`</span>
+<span class="sd">        which maybe contain the group pattern `(...)` or the tuple pattern `/.../`:</span>
+<span class="sd">        # =&gt; check invalid char outside of comments: [ ] \</span>
+<span class="sd">        # =&gt; remove redundant char: whitespace</span>
+<span class="sd">        # =&gt; count continuous dots separately,</span>
+<span class="sd">        #    not replace regex pattern &#39;.\+&#39; =&gt; &#39;(?:&#39; + &#39;.&#39; * ndim + &#39;)&#39;</span>
+<span class="sd">        # =&gt; deal with delimiter: `(group pattern)`, `/tuple pattern/`</span>
+<span class="sd">        </span>
+<span class="sd">        :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_tokenized</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># hold the position at source to retain the boundary</span>
+            <span class="n">this</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">next</span>
+            <span class="n">this_pos</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span>
+            <span class="k">if</span> <span class="n">this</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">break</span>  <span class="c1"># end of pattern</span>
+            <span class="k">if</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">:</span>
+                <span class="k">break</span>  <span class="c1"># end of group pattern</span>
+            <span class="c1"># move index of the source forward</span>
+            <span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;.&#39;</span><span class="p">:</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXP</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;(?:&#39;</span> <span class="o">+</span> <span class="sa">u</span><span class="s1">&#39;.&#39;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span> <span class="o">+</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">this_pos</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;(&#39;</span><span class="p">:</span>
+                <span class="c1"># parse the whole group content `...` without consuming `(` and `)`</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parse_group</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">):</span>
+                    <span class="c1"># unexpected end of group pattern</span>
+                    <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unbalanced parenthesis `(`&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">this_pos</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;/&#39;</span><span class="p">:</span>
+                <span class="c1"># parse the tuple whole content `...` without consuming `(` and `)`</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parse_tuple</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+                    <span class="c1"># unexpected end of group pattern</span>
+                    <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unbalanced slash `/`&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">this_pos</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">this</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;invalid escape expression `</span><span class="se">\\</span><span class="s1">`&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">this</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">this</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;[]&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;invalid set indicator `</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">this</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">this</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;*+?{,}&#39;</span> <span class="ow">or</span> <span class="n">this</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;0123456789&#39;</span> <span class="ow">or</span> <span class="n">this</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;^$&#39;</span> <span class="ow">or</span> <span class="n">this</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;|&#39;</span><span class="p">:</span>
+                <span class="c1"># repeat with digital</span>
+                <span class="c1"># at beginning or end</span>
+                <span class="c1"># branch</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="n">this_pos</span><span class="p">])</span>
+            <span class="c1"># omit whitespace</span>
+            <span class="k">elif</span> <span class="n">this</span><span class="o">.</span><span class="n">isspace</span><span class="p">():</span>
+                <span class="k">pass</span>
+            <span class="c1"># omit non-special chars</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unsupported syntax char `</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">this</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># otherwise:</span>
+                <span class="c1"># deal with non-special chars as tuple</span>
+                <span class="c1"># parse the tuple in which `:` is not accepted</span>
+                <span class="c1"># and `|`, `^` has already been excluded because they are special chars</span>
+                <span class="c1"># tuple terminator could be any special char (not digital), whitespace or None</span>
+                <span class="c1"># finally bring no more benefits other than bugs</span>
+        <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">_parse_seq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse the whole pattern `...`.</span>
+<span class="sd">        For the pattern `...)...`, parser will be stopped at `)` and an error will be raised.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_tokenized</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span>
+        <span class="c1"># parse the seq pattern</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_sub</span><span class="p">()</span>
+        <span class="c1"># parsing exit before end of pattern</span>
+        <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">next</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># unexpected end of pattern</span>
+            <span class="k">assert</span> <span class="n">source</span><span class="o">.</span><span class="n">next</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span>
+            <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unbalanced parenthesis `)`&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">parsed</span>
+
+<div class="viewcode-block" id="SeqRegexParser.parse"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.SeqRegexParser.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ndim</span><span class="p">,</span> <span class="n">pattern_str</span><span class="p">,</span> <span class="o">**</span><span class="n">placeholder_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The main entry of functions.  </span>
+<span class="sd">        </span>
+<span class="sd">        Parse the pattern by translating its syntax into the equivalent in regular expression </span>
+<span class="sd">        and return a pattern stack for future encode.</span>
+<span class="sd">        </span>
+<span class="sd">        :param ndim: The number of dimensions</span>
+<span class="sd">        :param pattern_str: The string of original pattern</span>
+<span class="sd">        :param placeholder_dict: The substitutions of placeholders in the pattern</span>
+<span class="sd">        :return: parsed = [(Flag, parsed_pattern, begin_pos), ...] </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">ndim</span><span class="p">,</span> <span class="n">pattern_str</span><span class="p">,</span> <span class="n">placeholder_dict</span><span class="p">)</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_seq</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">parsed</span></div>
+
+<div class="viewcode-block" id="SeqRegexParser.dump"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.SeqRegexParser.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transform self._pattern_stack into pseudo regular expression string </span>
+<span class="sd">        for debugging or testing.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: A string of parsed pattern similar to the ordinary RE</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dump_stack</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">flag</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">LITERAL</span><span class="p">:</span>
+                    <span class="n">dump_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">string</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">string</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">dump_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dump_stack</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SeqRegexParser.get_pattern_by_name"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.SeqRegexParser.get_pattern_by_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_pattern_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get original pattern string determined by group name.</span>
+<span class="sd">        </span>
+<span class="sd">        :param group_name: The group name</span>
+<span class="sd">        :return: The substring of original pattern</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">end</span> <span class="o">=</span> <span class="n">step</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">flag</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_START</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">step</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">pos</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">step</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_NAME</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">step</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">string</span> <span class="o">==</span> <span class="n">group_name</span><span class="p">:</span>
+                    <span class="n">step</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_END</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">end</span> <span class="o">=</span> <span class="n">pos</span>
+                    <span class="k">break</span>
+                <span class="k">elif</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">step</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># `(?:P&lt;name@@&gt;pattern_str)`</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_str</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown group name&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SeqRegexParser.get_pattern_by_id"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.SeqRegexParser.get_pattern_by_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_pattern_by_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get original pattern string determined by group index.</span>
+<span class="sd">        </span>
+<span class="sd">        :param group_index: The index of group</span>
+<span class="sd">        :return: The substring of original pattern</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">end</span> <span class="o">=</span> <span class="n">step</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">group_id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">named</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">group_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_str</span>
+        <span class="k">for</span> <span class="n">flag</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_START</span><span class="p">:</span>
+                <span class="n">group_id</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">group_id</span> <span class="o">==</span> <span class="n">group_index</span><span class="p">:</span>
+                    <span class="n">step</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">pos</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">step</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_NAME</span> <span class="ow">and</span> <span class="n">group_id</span> <span class="o">==</span> <span class="n">group_index</span><span class="p">:</span>
+                <span class="n">named</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_END</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">end</span> <span class="o">=</span> <span class="n">pos</span>
+                    <span class="k">break</span>
+                <span class="k">elif</span> <span class="n">step</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">step</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">named</span><span class="p">:</span>
+                <span class="c1"># `(?P&lt;....&gt;pattern_str)`</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_str</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># `(pattern_str)`</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_str</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;group index out of range&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SeqRegexParser.exists_negative_set"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.SeqRegexParser.exists_negative_set">[docs]</a>    <span class="k">def</span> <span class="nf">exists_negative_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check whether there exists negative set.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: True if exists else False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># fixme: if exits ?! ?&lt;!</span>
+        <span class="n">exists</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">SET_NEG</span><span class="p">:</span>
+                <span class="n">exists</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">exists</span></div>
+
+<div class="viewcode-block" id="SeqRegexParser.get_positive_literal_sets"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.SeqRegexParser.get_positive_literal_sets">[docs]</a>    <span class="k">def</span> <span class="nf">get_positive_literal_sets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get literals grouped by sets which do not have negative sign.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: literal_set_list = [&#39;str&#39;, [&#39;str&#39;, &#39;str&#39;], ....]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># fixme: sets come after ?! ?&lt;! ==&gt; - - = + , - + = -</span>
+        <span class="n">literal_set_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">in_set</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">positive</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">flag</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">SET_START</span><span class="p">:</span>
+                <span class="n">in_set</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">positive</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">literal_set_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">literal_set_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">literal_set_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">SET_NEG</span><span class="p">:</span>
+                <span class="n">positive</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">LITERAL</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">positive</span><span class="p">:</span>
+                    <span class="n">literal_set_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="ow">not</span> <span class="n">in_set</span><span class="p">:</span>
+                    <span class="n">literal_set_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">string</span><span class="p">})</span>  <span class="c1"># a set</span>
+            <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">EXT_END</span><span class="p">:</span>
+                <span class="n">in_set</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">positive</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">literal_set_list</span></div></div>
+
+
+<div class="viewcode-block" id="Tokenizer"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.Tokenizer">[docs]</a><span class="k">class</span> <span class="nc">Tokenizer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The class to help iterate the chars of original string of pattern&quot;&quot;&quot;</span>
+
+    <span class="c1"># this class is based on the following but modified:</span>
+    <span class="c1"># https://github.com/python/cpython/blob/master/Lib/sre_parse.py</span>
+    <span class="c1"># https://svn.python.org/projects/python/trunk/Lib/sre_parse.py</span>
+    <span class="c1"># python’s SRE structure can be learned from:</span>
+    <span class="c1"># https://blog.labix.org/2003/06/16/understanding-pythons-sre-structure</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="n">string</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__next</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">string</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span>
+        <span class="n">char</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">string</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">char</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">string</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;bad escape in end&#39;</span><span class="p">)</span>
+            <span class="n">char</span> <span class="o">+=</span> <span class="n">c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">char</span>
+
+<div class="viewcode-block" id="Tokenizer.match"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.Tokenizer.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">char</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">char</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">skip</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__next</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Tokenizer.get"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.Tokenizer.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">this</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__next</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">this</span></div>
+
+<div class="viewcode-block" id="Tokenizer.get_while"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.Tokenizer.get_while">[docs]</a>    <span class="k">def</span> <span class="nf">get_while</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">charset</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">charset</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="n">c</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__next</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="Tokenizer.get_until"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.Tokenizer.get_until">[docs]</a>    <span class="k">def</span> <span class="nf">get_until</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">terminator</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__next</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;missing characters&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;missing `</span><span class="si">%s</span><span class="s1">`, unterminated characters&#39;</span> <span class="o">%</span> <span class="n">terminator</span><span class="p">,</span>
+                                 <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="n">terminator</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;missing character&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">skip</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="n">c</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Tokenizer.tell"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.Tokenizer.tell">[docs]</a>    <span class="k">def</span> <span class="nf">tell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="ow">or</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Tokenizer.seek"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.Tokenizer.seek">[docs]</a>    <span class="k">def</span> <span class="nf">seek</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__next</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Tokenizer.error"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.Tokenizer.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span> <span class="o">-</span> <span class="n">offset</span>
+        <span class="c1"># highlight the position of error</span>
+        <span class="k">return</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> at position </span><span class="si">%d</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;.&#39;</span> <span class="o">*</span> <span class="n">position</span> <span class="o">+</span> <span class="sa">u</span><span class="s1">&#39;^&#39;</span><span class="p">))</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">seq_re  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, GE Ning.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.
+    </div>
+  </body>
+</html>
