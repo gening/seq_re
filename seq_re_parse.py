@@ -66,6 +66,7 @@ class Flags(object):
     EXP = 'EXP'  # automatic expansion
     EXT_START = 'EXT_S'  # non-capturing group pattern start
     EXT_END = 'EXT_E'  # non-capturing group pattern end
+    EXT_SIGN = 'EXT_SIG'  # non-capturing group notation
     GROUP_START = 'GRP_S'  # capturing group pattern start
     GROUP_END = 'GRP_E'  # capturing group pattern end
     GROUP_NAME = 'GRP_NAM'  # group name define
@@ -375,12 +376,12 @@ class SeqRegexParser(object):
             elif char == u':':
                 group = False
                 # non-capturing group
-                parsed.append([Flags.EX, u'?:', source.pos - 2])
+                parsed.append([Flags.EXT_SIGN, u'?:', source.pos - 2])
             elif char == u'P':
                 if source.match(u'<'):
                     group = True
                     parsed[-1][0] = Flags.GROUP_START
-                    parsed.append([Flags.EX, u'?P<', source.pos - 3])
+                    parsed.append([Flags.EXT_SIGN, u'?P<', source.pos - 3])
                     # named group: skip forward to end of name and format
                     identifier = source.get_until(u'>')  # terminator will be consumed silently
                     name, format_indices = self._parse_group_identifier(identifier)
@@ -388,7 +389,7 @@ class SeqRegexParser(object):
                     parsed.append([Flags.GROUP_NAME, name, source.pos - len(identifier) - 1])
                     parsed.append([Flags.EX, u'>', source.pos - 1])
                 elif source.match(u'='):
-                    parsed.append([Flags.EX, u'?P=', source.pos - 3])
+                    parsed.append([Flags.EXT_SIGN, u'?P=', source.pos - 3])
                     # named back reference
                     name = source.get_until(u')', skip=False)  # terminator will be not consumed
                     parsed.append([Flags.EX, name, source.pos - len(name)])
@@ -423,10 +424,10 @@ class SeqRegexParser(object):
                     else:
                         char = u'<' + char
                 char = u'?' + char
-                parsed.append([Flags.EX, char, source.pos - len(char)])
+                parsed.append([Flags.EXT_SIGN, char, source.pos - len(char)])
             elif char == u'(':
                 group = False
-                parsed.append([Flags.EX, u'?(', source.pos - 2])
+                parsed.append([Flags.EXT_SIGN, u'?(', source.pos - 2])
                 # conditional back reference group
                 cond_name = source.get_until(u')')  # terminator will be consumed silently
                 parsed.append([Flags.EX, cond_name, source.pos - len(cond_name) - 1])
@@ -628,44 +629,39 @@ class SeqRegexParser(object):
         else:
             raise ValueError('group index out of range')
 
-    def exists_negative_set(self):
-        """Check whether there exists negative set.
-        
-        :return: True if exists else False
-        """
-        # fixme: if exits ?! ?<!
-        exists = False
-        for i in xrange(len(self._pattern_stack)):
-            if self._pattern_stack[i][0] == Flags.SET_NEG:
-                exists = True
-                break
-        return exists
-
     def get_positive_literal_sets(self):
         """Get literals grouped by sets which do not have negative sign.
         
         :return: literal_set_list = ['str', ['str', 'str'], ....]
         """
-        # fixme: sets come after ?! ?<! ==> - - = + , - + = -
+        # sets come after ?! ?<! => - - = + , - + = -
         literal_set_list = []
+        positive = True
+        set_sign = True
         in_set = False
-        positive = False
+
         for flag, string, _ in self._pattern_stack:
-            if flag == Flags.SET_START:
+            if flag == Flags.EXT_START:
+                if string in [u'?!', u'?<!']:
+                    positive = False
+            elif flag == Flags.SET_START:
                 in_set = True
-                positive = True
-                if len(literal_set_list) == 0 or len(literal_set_list[-1]) == 0:
-                    literal_set_list.append(set())
+                literal_set_list.append(set())
             elif flag == Flags.SET_NEG:
-                positive = False
+                set_sign = False
             elif flag == Flags.LITERAL:
-                if positive:
-                    literal_set_list[-1].add(string)
-                elif not in_set:
-                    literal_set_list.append({string})  # a set
-            elif flag == Flags.EXT_END:
+                if positive and set_sign:
+                    if in_set:
+                        literal_set_list[-1].add(string)
+                    else:
+                        literal_set_list.append({string})  # a set
+            elif flag == Flags.SET_END:
+                if len(literal_set_list[-1]) == 0:
+                    literal_set_list.pop(-1)
                 in_set = False
-                positive = False
+                set_sign = True
+            elif flag == Flags.EXT_END:
+                positive = True
         return literal_set_list
 
 

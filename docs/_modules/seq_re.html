@@ -207,7 +207,6 @@
 <span class="sd">=========================</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1"># todo: doc</span>
 <span class="c1"># todo: deal with multi-value elements in the sequence</span>
 <span class="c1"># todo: assign an default name uniquely for group</span>
 
@@ -328,10 +327,10 @@
         <span class="sd">&quot;&quot;&quot;Encode the n-dimension sequence into a linear of string for matching the pattern&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nd_sequence</span> <span class="o">=</span> <span class="n">nd_sequence</span>
         <span class="n">stack_encoded</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">default_encoded_str</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">exists_negative_set</span><span class="p">()</span> <span class="k">else</span> <span class="sa">u</span><span class="s1">&#39;.&#39;</span>
         <span class="k">for</span> <span class="n">nd_tuple</span> <span class="ow">in</span> <span class="n">nd_sequence</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">nd_tuple</span><span class="p">:</span>
-                <span class="n">stack_encoded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_encode_str</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">default_encoded_str</span><span class="p">))</span>
+                <span class="c1"># string not presenting in the pattern needs not to be encoded into a unicode char</span>
+                <span class="n">stack_encoded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_encode_str</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
         <span class="k">return</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stack_encoded</span><span class="p">)</span>
 
     <span class="c1"># ######################################## #</span>
@@ -359,7 +358,36 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outer</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_outer</span><span class="o">.</span><span class="n">_seq_pattern</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SeqRegex.SeqRegexObject.is_useless_for"><a class="viewcode-back" href="../seq_re.html#seq_re.SeqRegex.SeqRegexObject.is_useless_for">[docs]</a>        <span class="k">def</span> <span class="nf">is_useless_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outer</span><span class="o">.</span><span class="n">is_useless_for</span><span class="p">(</span><span class="n">nd_sequence</span><span class="p">)</span></div></div>
+            <span class="sd">&quot;&quot;&quot;For preliminary screening the seq in advanced, </span>
+<span class="sd">            to check whether regular expression has no chance of success.</span>
+
+<span class="sd">            :param nd_sequence: An N-dimensional Sequence</span>
+<span class="sd">            :return: True if SEQ_RE no chance of success else False</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># for literals in the negative set,</span>
+            <span class="c1"># not sure whether they should or should not be in the seq.</span>
+            <span class="c1"># for literals in the positive set,</span>
+            <span class="c1"># any one could be in the seq,</span>
+            <span class="c1"># and their order cannot be determined in advanced.</span>
+            <span class="n">positive_sets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outer</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">get_positive_literal_sets</span><span class="p">()</span>
+            <span class="n">useless</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">each_set</span> <span class="ow">in</span> <span class="n">positive_sets</span><span class="p">:</span>
+                <span class="n">useless</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">for</span> <span class="n">literal</span> <span class="ow">in</span> <span class="n">each_set</span><span class="p">:</span>
+                    <span class="c1"># seq.find(literal) &gt; -1 but seq is not a string</span>
+                    <span class="k">for</span> <span class="n">nd_tuple</span> <span class="ow">in</span> <span class="n">nd_sequence</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">nd_tuple</span><span class="p">:</span>
+                            <span class="c1"># list, set</span>
+                            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="n">literal</span> <span class="ow">in</span> <span class="n">e</span><span class="p">:</span>
+                                    <span class="n">useless</span> <span class="o">=</span> <span class="kc">False</span>
+                                    <span class="k">break</span>
+                            <span class="c1"># string</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">literal</span> <span class="o">==</span> <span class="n">e</span><span class="p">:</span>
+                                    <span class="n">useless</span> <span class="o">=</span> <span class="kc">False</span>
+                                    <span class="k">break</span>
+            <span class="k">return</span> <span class="n">useless</span></div></div>
 
 <div class="viewcode-block" id="SeqRegex.SeqMatchObject"><a class="viewcode-back" href="../seq_re.html#seq_re.SeqRegex.SeqMatchObject">[docs]</a>    <span class="k">class</span> <span class="nc">SeqMatchObject</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The class manages the match results that the SeqRegex returned, </span>
@@ -497,40 +525,7 @@
 <span class="sd">        :param nd_sequence: An N-dimensional Sequence</span>
 <span class="sd">        :return: A list of SeqMatchObject Instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">seq_pattern</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">)]</span></div>
-
-<div class="viewcode-block" id="SeqRegex.is_useless_for"><a class="viewcode-back" href="../seq_re.html#seq_re.SeqRegex.is_useless_for">[docs]</a>    <span class="k">def</span> <span class="nf">is_useless_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;For preliminary screening the seq in advanced, </span>
-<span class="sd">        to check whether regular expression has no chance of success.</span>
-<span class="sd">        </span>
-<span class="sd">        :param nd_sequence: An N-dimensional Sequence</span>
-<span class="sd">        :return: True if SEQ_RE no chance of success else False</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># for literals in the negative set,</span>
-        <span class="c1"># not sure whether they should or should not be in the seq.</span>
-        <span class="c1"># for literals in the positive set,</span>
-        <span class="c1"># any one could be in the seq,</span>
-        <span class="c1"># and their order cannot be determined in advanced.</span>
-        <span class="c1"># fixme: if seq_pattern is None</span>
-        <span class="n">positive_sets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">get_positive_literal_sets</span><span class="p">()</span>
-        <span class="n">useless</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">for</span> <span class="n">each_set</span> <span class="ow">in</span> <span class="n">positive_sets</span><span class="p">:</span>
-            <span class="n">useless</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">for</span> <span class="n">literal</span> <span class="ow">in</span> <span class="n">each_set</span><span class="p">:</span>
-                <span class="c1"># seq.find(literal) &gt; -1 but seq is not a string</span>
-                <span class="k">for</span> <span class="n">nd_tuple</span> <span class="ow">in</span> <span class="n">nd_sequence</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">nd_tuple</span><span class="p">:</span>
-                        <span class="c1"># list, set</span>
-                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
-                            <span class="k">if</span> <span class="n">literal</span> <span class="ow">in</span> <span class="n">e</span><span class="p">:</span>
-                                <span class="n">useless</span> <span class="o">=</span> <span class="kc">False</span>
-                                <span class="k">break</span>
-                        <span class="c1"># string</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="n">literal</span> <span class="o">==</span> <span class="n">e</span><span class="p">:</span>
-                                <span class="n">useless</span> <span class="o">=</span> <span class="kc">False</span>
-                                <span class="k">break</span>
-        <span class="k">return</span> <span class="n">useless</span></div></div>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">seq_pattern</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">)]</span></div></div>
 </pre></div>
 
           </div>

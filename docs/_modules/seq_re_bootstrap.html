@@ -127,7 +127,7 @@
 <span class="sd">    :param trigger_dict_list: [{placeholder_name1: p1, placeholder_name2: p2}, ...] </span>
 <span class="sd">                              in which p1, p2 could be a str or a list of str.</span>
 <span class="sd">    :param sequence_iter: Yield one n-dimensional sequence by one</span>
-<span class="sd">    :return: [(freq, pattern_generated), ...]</span>
+<span class="sd">    :return: [(pattern_generated, freq), ...]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">seq_re_list</span> <span class="o">=</span> <span class="n">_prepare</span><span class="p">(</span><span class="n">ndim</span><span class="p">,</span> <span class="n">trigger_pattern</span><span class="p">,</span> <span class="n">trigger_dict_list</span><span class="p">)</span>
     <span class="n">counter</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -136,8 +136,8 @@
         <span class="k">for</span> <span class="n">gen_pattern</span> <span class="ow">in</span> <span class="n">_generate</span><span class="p">(</span><span class="n">seq_re_list</span><span class="p">,</span> <span class="n">seq</span><span class="p">):</span>
             <span class="n">counter</span><span class="p">[</span><span class="n">gen_pattern</span><span class="p">]</span> <span class="o">=</span> <span class="n">counter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">gen_pattern</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="c1"># sorted by the frequency</span>
-    <span class="n">popular_patterns</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">counter</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">counter</span><span class="o">.</span><span class="n">get</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[(</span><span class="n">gen_pattern</span><span class="p">,</span> <span class="n">counter</span><span class="p">[</span><span class="n">gen_pattern</span><span class="p">])</span> <span class="k">for</span> <span class="n">gen_pattern</span> <span class="ow">in</span> <span class="n">popular_patterns</span><span class="p">]</span></div>
+    <span class="n">popular_patterns</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">counter</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">popular_patterns</span></div>
 </pre></div>
 
           </div>
