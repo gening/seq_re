@@ -157,7 +157,6 @@ The APIs of SEQ_RE module
 =========================
 
 """
-# todo: doc
 # todo: deal with multi-value elements in the sequence
 # todo: assign an default name uniquely for group
 
@@ -278,10 +277,10 @@ class SeqRegex(object):
         """Encode the n-dimension sequence into a linear of string for matching the pattern"""
         self._nd_sequence = nd_sequence
         stack_encoded = []
-        default_encoded_str = None if self._parser.exists_negative_set() else u'.'
         for nd_tuple in nd_sequence:
             for element in nd_tuple:
-                stack_encoded.append(self._encode_str(element, default_encoded_str))
+                # string not presenting in the pattern needs not to be encoded into a unicode char
+                stack_encoded.append(self._encode_str(element, u'.'))
         return u''.join(stack_encoded)
 
     # ######################################## #

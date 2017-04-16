@@ -67,7 +67,8 @@ def print_stack_info(pattern, pattern_stack):
                 if string == u'^' and pattern[pos] == u'\\':
                     offset += 1
                 info.append(pattern[pos: pos + len(string) + offset])
-            elif flag in [seq_re_parse.Flags.EX, seq_re_parse.Flags.GROUP_NAME]:
+            elif flag in [seq_re_parse.Flags.EX,
+                          seq_re_parse.Flags.EXT_SIGN, seq_re_parse.Flags.GROUP_NAME]:
                 info.append(pattern[pos: pos + len(string)])
             else:
                 info.append(pattern[pos])
@@ -163,8 +164,8 @@ class TestSeqRegex:
         print ('====begin of SeqRegex test====')
 
         # pattern
-        pattern = ur'(?P<com1@0>/company_name/) .{0,5} (?P<com2@1>/company_name/) .{0,5} (/:verb/)'
-        abbr = {u'company_name': [u'中信证券', u'美的集团'], u'verb': u'v'}
+        pattern = ur'(?P<company1@0>/name/) .{0,5} (?P<company2@1>/^name:nc/) .{0,5} (/:verb/)'
+        abbr = {u'name': [u'中信证券', u'中信集团'], u'verb': u'v'}
 
         # test
         sr = seq_re.SeqRegex(self.ndim).compile(pattern, **abbr)
@@ -173,7 +174,8 @@ class TestSeqRegex:
             if result:
                 for g in result.group_list:
                     print ' '.join(['`'.join(map(unicode, item)) for item in g[1]])
-                for name in result.named_group_dict.iterkeys():
+                for name in sorted(result.named_group_dict,
+                                   key=lambda gn: result.named_group_dict[gn][0]):
                     print name, result.format_group_to_str(name, True)
 
         assert True
