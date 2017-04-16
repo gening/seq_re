@@ -309,7 +309,36 @@ class SeqRegex(object):
             return self._outer.findall(self._outer._seq_pattern, nd_sequence)
 
         def is_useless_for(self, nd_sequence):
-            return self._outer.is_useless_for(nd_sequence)
+            """For preliminary screening the seq in advanced, 
+            to check whether regular expression has no chance of success.
+
+            :param nd_sequence: An N-dimensional Sequence
+            :return: True if SEQ_RE no chance of success else False
+            """
+            # for literals in the negative set,
+            # not sure whether they should or should not be in the seq.
+            # for literals in the positive set,
+            # any one could be in the seq,
+            # and their order cannot be determined in advanced.
+            positive_sets = self._outer._parser.get_positive_literal_sets()
+            useless = True
+            for each_set in positive_sets:
+                useless = True
+                for literal in each_set:
+                    # seq.find(literal) > -1 but seq is not a string
+                    for nd_tuple in nd_sequence:
+                        for e in nd_tuple:
+                            # list, set
+                            if hasattr(e, '__iter__'):
+                                if literal in e:
+                                    useless = False
+                                    break
+                            # string
+                            else:
+                                if literal == e:
+                                    useless = False
+                                    break
+            return useless
 
     class SeqMatchObject(object):
         """The class manages the match results that the SeqRegex returned, 
@@ -448,36 +477,3 @@ class SeqRegex(object):
         :return: A list of SeqMatchObject Instance
         """
         return [self.finditer(seq_pattern, nd_sequence)]
-
-    def is_useless_for(self, nd_sequence):
-        """For preliminary screening the seq in advanced, 
-        to check whether regular expression has no chance of success.
-        
-        :param nd_sequence: An N-dimensional Sequence
-        :return: True if SEQ_RE no chance of success else False
-        """
-        # for literals in the negative set,
-        # not sure whether they should or should not be in the seq.
-        # for literals in the positive set,
-        # any one could be in the seq,
-        # and their order cannot be determined in advanced.
-        # fixme: if seq_pattern is None
-        positive_sets = self._parser.get_positive_literal_sets()
-        useless = True
-        for each_set in positive_sets:
-            useless = True
-            for literal in each_set:
-                # seq.find(literal) > -1 but seq is not a string
-                for nd_tuple in nd_sequence:
-                    for e in nd_tuple:
-                        # list, set
-                        if hasattr(e, '__iter__'):
-                            if literal in e:
-                                useless = False
-                                break
-                        # string
-                        else:
-                            if literal == e:
-                                useless = False
-                                break
-        return useless
