@@ -77,7 +77,7 @@ def bootstrap(ndim, trigger_pattern, trigger_dict_list, sequence_iter):
     :param trigger_dict_list: [{placeholder_name1: p1, placeholder_name2: p2}, ...] 
                               in which p1, p2 could be a str or a list of str.
     :param sequence_iter: Yield one n-dimensional sequence by one
-    :return: [(freq, pattern_generated), ...]
+    :return: [(pattern_generated, freq), ...]
     """
     seq_re_list = _prepare(ndim, trigger_pattern, trigger_dict_list)
     counter = dict()
@@ -86,5 +86,5 @@ def bootstrap(ndim, trigger_pattern, trigger_dict_list, sequence_iter):
         for gen_pattern in _generate(seq_re_list, seq):
             counter[gen_pattern] = counter.get(gen_pattern, 0) + 1
     # sorted by the frequency
-    popular_patterns = sorted(counter, key=counter.get, reverse=True)
-    return [(gen_pattern, counter[gen_pattern]) for gen_pattern in popular_patterns]
+    popular_patterns = sorted(counter.items(), key=lambda t: t[1], reverse=True)
+    return popular_patterns
