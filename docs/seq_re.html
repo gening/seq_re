@@ -266,7 +266,19 @@ indicated after the group name in the original pattern string.</p>
 <dl class="method">
 <dt id="seq_re.SeqRegex.SeqRegexObject.is_useless_for">
 <code class="descname">is_useless_for</code><span class="sig-paren">(</span><em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex.SeqRegexObject.is_useless_for"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex.SeqRegexObject.is_useless_for" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>For preliminary screening the seq in advanced, 
+to check whether regular expression has no chance of success.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nd_sequence</strong> &#8211; An N-dimensional Sequence</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if SEQ_RE no chance of success else False</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="seq_re.SeqRegex.SeqRegexObject.search">
@@ -337,23 +349,6 @@ of SeqMatchObject returned.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An iterator which generates a SeqMatchObject Instance</p>
 </td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="seq_re.SeqRegex.is_useless_for">
-<code class="descname">is_useless_for</code><span class="sig-paren">(</span><em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex.is_useless_for"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex.is_useless_for" title="Permalink to this definition">¶</a></dt>
-<dd><p>For preliminary screening the seq in advanced, 
-to check whether regular expression has no chance of success.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nd_sequence</strong> &#8211; An N-dimensional Sequence</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if SEQ_RE no chance of success else False</td>
 </tr>
 </tbody>
 </table>

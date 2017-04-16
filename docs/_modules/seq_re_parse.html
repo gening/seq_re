@@ -116,6 +116,7 @@
     <span class="n">EXP</span> <span class="o">=</span> <span class="s1">&#39;EXP&#39;</span>  <span class="c1"># automatic expansion</span>
     <span class="n">EXT_START</span> <span class="o">=</span> <span class="s1">&#39;EXT_S&#39;</span>  <span class="c1"># non-capturing group pattern start</span>
     <span class="n">EXT_END</span> <span class="o">=</span> <span class="s1">&#39;EXT_E&#39;</span>  <span class="c1"># non-capturing group pattern end</span>
+    <span class="n">EXT_SIGN</span> <span class="o">=</span> <span class="s1">&#39;EXT_SIG&#39;</span>  <span class="c1"># non-capturing group notation</span>
     <span class="n">GROUP_START</span> <span class="o">=</span> <span class="s1">&#39;GRP_S&#39;</span>  <span class="c1"># capturing group pattern start</span>
     <span class="n">GROUP_END</span> <span class="o">=</span> <span class="s1">&#39;GRP_E&#39;</span>  <span class="c1"># capturing group pattern end</span>
     <span class="n">GROUP_NAME</span> <span class="o">=</span> <span class="s1">&#39;GRP_NAM&#39;</span>  <span class="c1"># group name define</span>
@@ -425,12 +426,12 @@
             <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;:&#39;</span><span class="p">:</span>
                 <span class="n">group</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="c1"># non-capturing group</span>
-                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?:&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?:&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span>
             <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;P&#39;</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;&lt;&#39;</span><span class="p">):</span>
                     <span class="n">group</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="n">parsed</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_START</span>
-                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?P&lt;&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">3</span><span class="p">])</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?P&lt;&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">3</span><span class="p">])</span>
                     <span class="c1"># named group: skip forward to end of name and format</span>
                     <span class="n">identifier</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_until</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;&gt;&#39;</span><span class="p">)</span>  <span class="c1"># terminator will be consumed silently</span>
                     <span class="n">name</span><span class="p">,</span> <span class="n">format_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_group_identifier</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
@@ -438,7 +439,7 @@
                     <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_NAME</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
                     <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;&gt;&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
                 <span class="k">elif</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;=&#39;</span><span class="p">):</span>
-                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?P=&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">3</span><span class="p">])</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?P=&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">3</span><span class="p">])</span>
                     <span class="c1"># named back reference</span>
                     <span class="n">name</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_until</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># terminator will be not consumed</span>
                     <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)])</span>
@@ -473,10 +474,10 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">char</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="n">char</span>
                 <span class="n">char</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;?&#39;</span> <span class="o">+</span> <span class="n">char</span>
-                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">char</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)])</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="n">char</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)])</span>
             <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;(&#39;</span><span class="p">:</span>
                 <span class="n">group</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?(&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?(&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span>
                 <span class="c1"># conditional back reference group</span>
                 <span class="n">cond_name</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_until</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">)</span>  <span class="c1"># terminator will be consumed silently</span>
                 <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">cond_name</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond_name</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
@@ -678,44 +679,39 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;group index out of range&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SeqRegexParser.exists_negative_set"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.SeqRegexParser.exists_negative_set">[docs]</a>    <span class="k">def</span> <span class="nf">exists_negative_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Check whether there exists negative set.</span>
-<span class="sd">        </span>
-<span class="sd">        :return: True if exists else False</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># fixme: if exits ?! ?&lt;!</span>
-        <span class="n">exists</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span><span class="p">)):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">SET_NEG</span><span class="p">:</span>
-                <span class="n">exists</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="k">break</span>
-        <span class="k">return</span> <span class="n">exists</span></div>
-
 <div class="viewcode-block" id="SeqRegexParser.get_positive_literal_sets"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.SeqRegexParser.get_positive_literal_sets">[docs]</a>    <span class="k">def</span> <span class="nf">get_positive_literal_sets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get literals grouped by sets which do not have negative sign.</span>
 <span class="sd">        </span>
 <span class="sd">        :return: literal_set_list = [&#39;str&#39;, [&#39;str&#39;, &#39;str&#39;], ....]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># fixme: sets come after ?! ?&lt;! ==&gt; - - = + , - + = -</span>
+        <span class="c1"># sets come after ?! ?&lt;! =&gt; - - = + , - + = -</span>
         <span class="n">literal_set_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">positive</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">set_sign</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">in_set</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">positive</span> <span class="o">=</span> <span class="kc">False</span>
+
         <span class="k">for</span> <span class="n">flag</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">SET_START</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">EXT_START</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">string</span> <span class="ow">in</span> <span class="p">[</span><span class="sa">u</span><span class="s1">&#39;?!&#39;</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?&lt;!&#39;</span><span class="p">]:</span>
+                    <span class="n">positive</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">SET_START</span><span class="p">:</span>
                 <span class="n">in_set</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">positive</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">literal_set_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">literal_set_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">literal_set_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">())</span>
+                <span class="n">literal_set_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">())</span>
             <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">SET_NEG</span><span class="p">:</span>
-                <span class="n">positive</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">set_sign</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">LITERAL</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">positive</span><span class="p">:</span>
-                    <span class="n">literal_set_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="ow">not</span> <span class="n">in_set</span><span class="p">:</span>
-                    <span class="n">literal_set_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">string</span><span class="p">})</span>  <span class="c1"># a set</span>
-            <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">EXT_END</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">positive</span> <span class="ow">and</span> <span class="n">set_sign</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">in_set</span><span class="p">:</span>
+                        <span class="n">literal_set_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">literal_set_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">string</span><span class="p">})</span>  <span class="c1"># a set</span>
+            <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">SET_END</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">literal_set_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">literal_set_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
                 <span class="n">in_set</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">positive</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">set_sign</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">EXT_END</span><span class="p">:</span>
+                <span class="n">positive</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="n">literal_set_list</span></div></div>
 
 
