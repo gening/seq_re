@@ -1,5 +1,5 @@
-.. SEQ RE documentation master file, created by
-   sphinx-quickstart on Sat Apr 15 10:17:36 2017.
+.. seq_re documentation master file, created by
+   sphinx-quickstart on Wed Apr 19 09:12:09 2017.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
@@ -12,6 +12,7 @@ Welcome to SEQ RE's documentation!
 
    seq_re
    seq_re_bootstrap
+   seq_re_main
    seq_re_parse
 
 

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>seq_re_bootstrap module &#8212; SEQ RE  documentation</title>
+    <title>seq_re.seq_re_bootstrap module &#8212; SEQ RE 0.2 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '',
+        VERSION:     '0.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -26,8 +26,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="seq_re_parse module" href="seq_re_parse.html" />
-    <link rel="prev" title="seq_re module" href="seq_re.html" /> 
+    <link rel="next" title="seq_re.seq_re_main module" href="seq_re_main.html" />
+    <link rel="prev" title="seq_re package" href="seq_re.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -40,12 +40,12 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="seq_re_parse.html" title="seq_re_parse module"
+          <a href="seq_re_main.html" title="seq_re.seq_re_main module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="seq_re.html" title="seq_re module"
+          <a href="seq_re.html" title="seq_re package"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SEQ RE  documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SEQ RE 0.2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -54,12 +54,14 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-seq_re_bootstrap">
-<span id="seq-re-bootstrap-module"></span><h1>seq_re_bootstrap module<a class="headerlink" href="#module-seq_re_bootstrap" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-seq_re.seq_re_bootstrap">
+<span id="seq-re-seq-re-bootstrap-module"></span><h1>seq_re.seq_re_bootstrap module<a class="headerlink" href="#module-seq_re.seq_re_bootstrap" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="bootstrap-sequence-regular-express-pattern">
 <h2>Bootstrap sequence regular express pattern<a class="headerlink" href="#bootstrap-sequence-regular-express-pattern" title="Permalink to this headline">¶</a></h2>
 <p>A trigger pattern and several groups of trigger phrases is given, 
 the function bootstrap() will generate the new patterns through many sequences.</p>
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
 <p>For example, given that</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seq_re</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">trigger_pattern_ndim</span> <span class="o">=</span> <span class="mi">3</span>
@@ -70,7 +72,8 @@ the function bootstrap() will generate the new patterns through many sequences.<
 <span class="gp">&gt;&gt;&gt; </span>                     <span class="p">{</span><span class="s1">&#39;company_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Apple&#39;</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>                      <span class="s1">&#39;product_name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;iPhone 4&#39;</span><span class="p">,</span> <span class="s1">&#39;iPhone 6S plus&#39;</span><span class="p">]}</span>
 <span class="gp">&gt;&gt;&gt; </span>                    <span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">seq_re</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span><span class="n">trigger_pattern_ndim</span><span class="p">,</span> <span class="n">trigger_pattern</span><span class="p">,</span> <span class="n">trigger_dict_list</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">list_of_sequence</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seq_re</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span><span class="n">trigger_pattern_ndim</span><span class="p">,</span> <span class="n">trigger_pattern</span><span class="p">,</span> <span class="n">trigger_dict_list</span><span class="p">,</span> <span class="n">list_of_sequence</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>the patterns generated could be the following:</p>
@@ -82,8 +85,8 @@ the function bootstrap() will generate the new patterns through many sequences.<
 <p>The group in the trigger patterns, which needs to be presented in the generated patterns, 
 should be given a format string starting with <code class="docutils literal"><span class="pre">&#64;</span></code> after its group name.</p>
 <dl class="function">
-<dt id="seq_re_bootstrap.bootstrap">
-<code class="descclassname">seq_re_bootstrap.</code><code class="descname">bootstrap</code><span class="sig-paren">(</span><em>ndim</em>, <em>trigger_pattern</em>, <em>trigger_dict_list</em>, <em>sequence_iter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re_bootstrap.html#bootstrap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re_bootstrap.bootstrap" title="Permalink to this definition">¶</a></dt>
+<dt id="seq_re.seq_re_bootstrap.bootstrap">
+<code class="descclassname">seq_re.seq_re_bootstrap.</code><code class="descname">bootstrap</code><span class="sig-paren">(</span><em>ndim</em>, <em>trigger_pattern</em>, <em>trigger_dict_list</em>, <em>sequence_iter</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_bootstrap.html#bootstrap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_bootstrap.bootstrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bootstrap sequence regular express pattern by the trigger pattern.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -107,6 +110,7 @@ in which p1, p2 could be a str or a list of str.</li>
 
 </div>
 </div>
+</div>
 
 
           </div>
@@ -116,18 +120,21 @@ in which p1, p2 could be a str or a list of str.</li>
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">seq_re_bootstrap module</a><ul>
-<li><a class="reference internal" href="#bootstrap-sequence-regular-express-pattern">Bootstrap sequence regular express pattern</a></li>
+<li><a class="reference internal" href="#">seq_re.seq_re_bootstrap module</a><ul>
+<li><a class="reference internal" href="#bootstrap-sequence-regular-express-pattern">Bootstrap sequence regular express pattern</a><ul>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="seq_re.html"
-                        title="previous chapter">seq_re module</a></p>
+                        title="previous chapter">seq_re package</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="seq_re_parse.html"
-                        title="next chapter">seq_re_parse module</a></p>
+  <p class="topless"><a href="seq_re_main.html"
+                        title="next chapter">seq_re.seq_re_main module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -159,12 +166,12 @@ in which p1, p2 could be a str or a list of str.</li>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="seq_re_parse.html" title="seq_re_parse module"
+          <a href="seq_re_main.html" title="seq_re.seq_re_main module"
              >next</a> |</li>
         <li class="right" >
-          <a href="seq_re.html" title="seq_re module"
+          <a href="seq_re.html" title="seq_re package"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">SEQ RE  documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SEQ RE 0.2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

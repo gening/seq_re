@@ -1,7 +1,7 @@
-seq\_re\_bootstrap module
-=========================
+seq\_re\.seq\_re\_bootstrap module
+==================================
 
-.. automodule:: seq_re_bootstrap
+.. automodule:: seq_re.seq_re_bootstrap
     :members:
     :undoc-members:
     :show-inheritance:

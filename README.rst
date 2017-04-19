@@ -66,7 +66,7 @@ in which the delimiters ``/.../`` is to indicate a tuple of n dimensions.
   To express ``/``, ``:`` or ``|`` in literal, ``\`` should be added before ``/``, ``:`` or ``|``.
   Meanwhile, to represent a literal backslash ``\`` before ``/``, ``:`` or ``|``,
   ``\\`` should be used in the plain text
-  that is to say ``\``x4 must be used in the python code.
+  that is to say ``\`` x 4 must be used in the python code.
 
 1.2 Outside ``/.../``
 +++++++++++++++++++++

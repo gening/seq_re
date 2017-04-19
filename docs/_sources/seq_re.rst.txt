@@ -1,5 +1,5 @@
-seq\_re module
-==============
+seq\_re package
+===============
 
 .. automodule:: seq_re
     :members:
