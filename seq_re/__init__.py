@@ -184,6 +184,7 @@ Module contents
 Wrapper namespace of global objects.
 
 """
+# todo: desc the installation >>> pip install seq-re
 __author__ = "GE Ning <https://github.com/gening/seq_re>"
 __copyright__ = "Copyright (C) 2017 GE Ning"
 __license__ = "LGPL-3.0"
