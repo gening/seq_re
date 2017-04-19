@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>seq_re_bootstrap module &#8212; seq_re  documentation</title>
+    <title>seq_re_bootstrap module &#8212; SEQ RE  documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="seq_re.html" title="seq_re module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">seq_re  documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SEQ RE  documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -61,15 +61,16 @@
 <p>A trigger pattern and several groups of trigger phrases is given, 
 the function bootstrap() will generate the new patterns through many sequences.</p>
 <p>For example, given that</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">trigger_pattern_ndim</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">trigger_pattern</span> <span class="o">=</span> <span class="p">(</span><span class="sa">u</span><span class="s1">&#39;(?P&lt;com@1&gt;/company_name::company tag/) (?P&lt;x1@@&gt;.{0,5}) &#39;</span>
-<span class="gp">&gt;&gt;&gt; </span>                   <span class="sa">u</span><span class="s1">&#39;(?P&lt;v@0&gt;/:verb/) (?P&lt;x2@@&gt;.{0,5}) (?P&lt;pro@1&gt;/product_name::product tag/)&#39;</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">seq_re</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trigger_pattern_ndim</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trigger_pattern</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;(?P&lt;com@1&gt;/company_name::company tag/) (?P&lt;x1@@&gt;.{0,5}) &#39;</span>
+<span class="gp">&gt;&gt;&gt; </span>                   <span class="s1">&#39;(?P&lt;v@0&gt;/:verb/) (?P&lt;x2@@&gt;.{0,5}) (?P&lt;pro@1&gt;/product_name::product tag/)&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span>                  <span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">trigger_dict_list</span> <span class="o">=</span> <span class="p">[{</span><span class="sa">u</span><span class="s1">&#39;company_name&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;Apple&#39;</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;product_name&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;iPhone&#39;</span><span class="p">},</span>
-<span class="gp">&gt;&gt;&gt; </span>                     <span class="p">{</span><span class="sa">u</span><span class="s1">&#39;company_name&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;Apple&#39;</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>                      <span class="sa">u</span><span class="s1">&#39;product_name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="sa">u</span><span class="s1">&#39;iPhone 4&#39;</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;iPhone 6S plus&#39;</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trigger_dict_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;company_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Apple&#39;</span><span class="p">,</span> <span class="s1">&#39;product_name&#39;</span><span class="p">:</span> <span class="s1">&#39;iPhone&#39;</span><span class="p">},</span>
+<span class="gp">&gt;&gt;&gt; </span>                     <span class="p">{</span><span class="s1">&#39;company_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Apple&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                      <span class="s1">&#39;product_name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;iPhone 4&#39;</span><span class="p">,</span> <span class="s1">&#39;iPhone 6S plus&#39;</span><span class="p">]}</span>
 <span class="gp">&gt;&gt;&gt; </span>                    <span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bootstrap</span><span class="p">(</span><span class="n">trigger_pattern_ndim</span><span class="p">,</span> <span class="n">trigger_pattern</span><span class="p">,</span> <span class="n">trigger_dict_list</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">seq_re</span><span class="o">.</span><span class="n">bootstrap</span><span class="p">(</span><span class="n">trigger_pattern_ndim</span><span class="p">,</span> <span class="n">trigger_pattern</span><span class="p">,</span> <span class="n">trigger_dict_list</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>the patterns generated could be the following:</p>
@@ -163,7 +164,7 @@ in which p1, p2 could be a str or a list of str.</li>
         <li class="right" >
           <a href="seq_re.html" title="seq_re module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">seq_re  documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SEQ RE  documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

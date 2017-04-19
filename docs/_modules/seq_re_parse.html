@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>seq_re_parse &#8212; seq_re  documentation</title>
+    <title>seq_re_parse &#8212; SEQ RE  documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -37,7 +37,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">seq_re  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SEQ RE  documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
     </div>  
@@ -61,8 +61,8 @@
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;GE Ning &lt;https://github.com/gening/seq_regex&gt;&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright (C) 2017 GE Ning&quot;</span>
-<span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;Apache License 2.0&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1.4&quot;</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;LGPL-3.0&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.2&quot;</span>
 
 <span class="c1"># todo: deal with multi-value elements in the sequence</span>
 <span class="c1"># todo: assign an default name uniquely for group</span>
@@ -171,9 +171,9 @@
 <span class="sd">        :param indices_string: indices_string: `0,2:4`</span>
 <span class="sd">        :return: return index_range_list = [(group_index_begin, group_index_end), ...]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">index_range_list</span> <span class="o">=</span> <span class="n">indices_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">index_range_list</span> <span class="o">=</span> <span class="n">indices_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">indices</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">index_range_list</span><span class="p">):</span>
-            <span class="n">index_list</span> <span class="o">=</span> <span class="n">indices</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">index_list</span> <span class="o">=</span> <span class="n">indices</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">index_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">index_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
                 <span class="n">index_range_list</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
@@ -194,13 +194,13 @@
 <span class="sd">        :return: (&#39;group_name&#39;, [(group_index_begin, group_index_end), ...])</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_tokenized</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="n">format_indices</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">items</span> <span class="o">=</span> <span class="n">identifier_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;@&#39;</span><span class="p">)</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">identifier_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;@&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;missing group name&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">identifier_string</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;missing group name&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">identifier_string</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="c1"># A</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">format_indices</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span><span class="p">))</span>
@@ -208,21 +208,21 @@
         <span class="c1"># A@B =&gt; [&#39;A&#39;, &#39;B&#39;]</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">format_string</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">format_string</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">format_string</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
                 <span class="n">format_indices</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span><span class="p">))</span>
-            <span class="k">elif</span> <span class="n">format_string</span> <span class="o">!=</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">format_string</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">format_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_indices</span><span class="p">(</span><span class="n">format_string</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;invalid format indices `</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">format_string</span><span class="p">,</span>
+                    <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;invalid format indices `</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">format_string</span><span class="p">,</span>
                                        <span class="nb">len</span><span class="p">(</span><span class="n">format_string</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="c1"># A@@ =&gt; [&#39;A&#39;, &#39;&#39;, &#39;&#39;]</span>
-        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">items</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">items</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="n">format_indices</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># A@B@C =&gt; [&#39;A&#39;, &#39;B&#39;, &#39;C&#39;]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">format_string</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;@&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-            <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;invalid format indices `</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">format_string</span><span class="p">,</span>
+            <span class="n">format_string</span> <span class="o">=</span> <span class="s1">&#39;@&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;invalid format indices `</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">format_string</span><span class="p">,</span>
                                <span class="nb">len</span><span class="p">(</span><span class="n">format_string</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">name</span><span class="p">,</span> <span class="n">format_indices</span>
 
@@ -271,7 +271,7 @@
         <span class="c1"># replaced by [&quot;p11&quot;&quot;p12&quot;&quot;p2&quot;]</span>
         <span class="n">elements</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">value_chars</span><span class="p">,</span> <span class="n">source_pos</span> <span class="ow">in</span> <span class="n">element_set</span><span class="p">:</span>
-            <span class="n">value_str</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value_chars</span><span class="p">)</span>  <span class="c1"># value_chars = [a1, a2, ...]</span>
+            <span class="n">value_str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value_chars</span><span class="p">)</span>  <span class="c1"># value_chars = [a1, a2, ...]</span>
             <span class="k">if</span> <span class="n">value_str</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_placeholder_dict</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_placeholder</span><span class="p">(</span><span class="n">value_str</span><span class="p">):</span>
                     <span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">v</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
@@ -281,22 +281,22 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># nothing to be negatived</span>
             <span class="k">if</span> <span class="n">negatived</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unexpected negative sign `^`&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">negative_flag</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;unexpected negative sign `^`&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">negative_flag</span><span class="p">)</span>
             <span class="c1"># `.`</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXP</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXP</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="n">negatived</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="c1"># `A`</span>
             <span class="n">value_str</span><span class="p">,</span> <span class="n">source_pos</span> <span class="o">=</span> <span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">LITERAL</span><span class="p">,</span> <span class="n">value_str</span><span class="p">,</span> <span class="n">source_pos</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># `[AB]` `[^A]` `[^AB]`</span>
-            <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">SET_START</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;[&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+            <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">SET_START</span><span class="p">,</span> <span class="s1">&#39;[&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">negatived</span><span class="p">:</span>
-                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">SET_NEG</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;^&#39;</span><span class="p">,</span> <span class="n">negative_flag</span><span class="p">])</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">SET_NEG</span><span class="p">,</span> <span class="s1">&#39;^&#39;</span><span class="p">,</span> <span class="n">negative_flag</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">value_str</span><span class="p">,</span> <span class="n">source_pos</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
                 <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">LITERAL</span><span class="p">,</span> <span class="n">value_str</span><span class="p">,</span> <span class="n">source_pos</span><span class="p">])</span>
-            <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">SET_END</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;]&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+            <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">SET_END</span><span class="p">,</span> <span class="s1">&#39;]&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
 
         <span class="c1"># clear element_set</span>
         <span class="n">element_set</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -331,14 +331,14 @@
         <span class="n">negative_flag</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
         <span class="c1"># open the `/`</span>
         <span class="n">start_pos</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">TUPLE_START</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;(?:&#39;</span><span class="p">,</span> <span class="n">start_pos</span><span class="p">])</span>
+        <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">TUPLE_START</span><span class="p">,</span> <span class="s1">&#39;(?:&#39;</span><span class="p">,</span> <span class="n">start_pos</span><span class="p">])</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">this</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">next</span>
             <span class="n">this_pos</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span>
             <span class="k">if</span> <span class="n">this</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># unexpected end of tuple pattern</span>
-                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unbalanced slash `/`&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">start_pos</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">this</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;/&#39;</span><span class="p">:</span>  <span class="c1"># terminator = u&#39;/&#39;</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;unbalanced slash `/`&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">start_pos</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">this</span> <span class="ow">in</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>  <span class="c1"># terminator = &#39;/&#39;</span>
                 <span class="k">if</span> <span class="n">negative_flag</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">element_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_parse_element</span><span class="p">(</span><span class="n">negative_flag</span><span class="p">,</span> <span class="n">element_list</span><span class="p">)</span>
                     <span class="c1"># negative_flag = -1</span>
@@ -349,38 +349,38 @@
                 <span class="c1"># 0 1  2   3</span>
                 <span class="n">dim_vacancy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span> <span class="o">-</span> <span class="n">dim_index</span>
                 <span class="k">if</span> <span class="n">dim_vacancy</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXP</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;.&#39;</span> <span class="o">*</span> <span class="n">dim_vacancy</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXP</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span> <span class="o">*</span> <span class="n">dim_vacancy</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
                 <span class="k">break</span>  <span class="c1"># end of tuple pattern</span>
             <span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;:&#39;</span><span class="p">:</span>
-                <span class="c1"># if terminator !=u&#39;/&#39;:</span>
-                <span class="c1">#     raise source.error(u&#39;invalid `:` out inside `/.../`&#39;, 1)</span>
+            <span class="k">if</span> <span class="n">this</span> <span class="o">==</span> <span class="s1">&#39;:&#39;</span><span class="p">:</span>
+                <span class="c1"># if terminator !=&#39;/&#39;:</span>
+                <span class="c1">#     raise source.error(&#39;invalid `:` out inside `/.../`&#39;, 1)</span>
                 <span class="c1"># parse the element</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_parse_element</span><span class="p">(</span><span class="n">negative_flag</span><span class="p">,</span> <span class="n">element_list</span><span class="p">)</span>
                 <span class="n">negative_flag</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
                 <span class="c1"># move dim_index forwards</span>
                 <span class="n">dim_index</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">if</span> <span class="n">dim_index</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;out of dimension range&#39;</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;|&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">next</span> <span class="ow">not</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;|:/&#39;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;out of dimension range&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">this</span> <span class="o">==</span> <span class="s1">&#39;|&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">next</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s1">&#39;|:/&#39;</span><span class="p">:</span>
                     <span class="c1"># nothing to be alternated previously</span>
                     <span class="c1"># if len(element_list) == 0:</span>
-                    <span class="c1">#    ignore raising source.error(u&#39;unexpected alternate sign `|`&#39;)</span>
+                    <span class="c1">#    ignore raising source.error(&#39;unexpected alternate sign `|`&#39;)</span>
                     <span class="c1"># new value of the element</span>
                     <span class="n">element_list</span><span class="o">.</span><span class="n">append</span><span class="p">(([],</span> <span class="n">this_pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-            <span class="k">elif</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;^&#39;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">element_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">negative_flag</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">this</span> <span class="o">==</span> <span class="s1">&#39;^&#39;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">element_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">negative_flag</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="c1"># `^` has no special meaning if it’s not the first character in the set.</span>
                 <span class="c1"># negatived = True</span>
                 <span class="n">negative_flag</span> <span class="o">=</span> <span class="n">this_pos</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">element_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">element_list</span><span class="o">.</span><span class="n">append</span><span class="p">(([],</span> <span class="n">this_pos</span><span class="p">))</span>
-                <span class="k">if</span> <span class="n">this</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">this</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;/:|</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">this</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">this</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="s1">&#39;/:|</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">:</span>
                         <span class="n">element_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                    <span class="k">elif</span> <span class="n">this</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;^&#39;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">element_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">elif</span> <span class="n">this</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;^&#39;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">element_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="c1"># so only if it&#39;s the first character, `^` can be escaped.</span>
                         <span class="n">element_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                     <span class="k">else</span><span class="p">:</span>
@@ -388,7 +388,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">element_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this</span><span class="p">)</span>
         <span class="c1"># close the `/`</span>
-        <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">TUPLE_END</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span><span class="p">])</span>
+        <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">TUPLE_END</span><span class="p">,</span> <span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span><span class="p">])</span>
         <span class="k">return</span>
 
     <span class="k">def</span> <span class="nf">_parse_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -416,75 +416,75 @@
         <span class="n">group</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># capturing group flag</span>
         <span class="c1"># open group</span>
         <span class="n">start_pos</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span>
-        <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_START</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="n">start_pos</span><span class="p">])</span>
+        <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_START</span><span class="p">,</span> <span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="n">start_pos</span><span class="p">])</span>
         <span class="c1"># group content</span>
-        <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;?&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">):</span>
             <span class="c1"># this is an extension notation</span>
             <span class="n">char</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">char</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unexpected end of pattern&#39;</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;:&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;unexpected end of pattern&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="s1">&#39;:&#39;</span><span class="p">:</span>
                 <span class="n">group</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="c1"># non-capturing group</span>
-                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?:&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span>
-            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;P&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;&lt;&#39;</span><span class="p">):</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="s1">&#39;?:&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="s1">&#39;P&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;&lt;&#39;</span><span class="p">):</span>
                     <span class="n">group</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="n">parsed</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_START</span>
-                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?P&lt;&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">3</span><span class="p">])</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="s1">&#39;?P&lt;&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">3</span><span class="p">])</span>
                     <span class="c1"># named group: skip forward to end of name and format</span>
-                    <span class="n">identifier</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_until</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;&gt;&#39;</span><span class="p">)</span>  <span class="c1"># terminator will be consumed silently</span>
+                    <span class="n">identifier</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_until</span><span class="p">(</span><span class="s1">&#39;&gt;&#39;</span><span class="p">)</span>  <span class="c1"># terminator will be consumed silently</span>
                     <span class="n">name</span><span class="p">,</span> <span class="n">format_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_group_identifier</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">named_group_format_indices</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">format_indices</span>
                     <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">GROUP_NAME</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
-                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;&gt;&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
-                <span class="k">elif</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;=&#39;</span><span class="p">):</span>
-                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?P=&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">3</span><span class="p">])</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="s1">&#39;&gt;&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">):</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="s1">&#39;?P=&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">3</span><span class="p">])</span>
                     <span class="c1"># named back reference</span>
-                    <span class="n">name</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_until</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># terminator will be not consumed</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_until</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># terminator will be not consumed</span>
                     <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)])</span>
                     <span class="c1"># close the group</span>
-                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_END</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span><span class="p">])</span>
+                    <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_END</span><span class="p">,</span> <span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span><span class="p">])</span>
                     <span class="c1"># not contain any pattern</span>
                     <span class="k">return</span>
-            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;#&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
                 <span class="c1"># group = False</span>
                 <span class="n">parsed</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># pop the start of group</span>
                 <span class="c1"># comment group ignores everything including `/.../`</span>
-                <span class="c1"># source.get_until(u&#39;)&#39;, skip=False)  # terminator will be not consumed</span>
+                <span class="c1"># source.get_until(&#39;)&#39;, skip=False)  # terminator will be not consumed</span>
                 <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">next</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;missing `)`, unterminated comment&quot;</span><span class="p">,</span>
                                            <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">start_pos</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                         <span class="k">break</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
                 <span class="c1"># not contain any pattern</span>
                 <span class="k">return</span>
-            <span class="k">elif</span> <span class="n">char</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;=!&lt;&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">char</span> <span class="ow">in</span> <span class="s1">&#39;=!&lt;&#39;</span><span class="p">:</span>
                 <span class="n">group</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="c1"># lookahead assertions</span>
-                <span class="k">if</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;&lt;&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">char</span> <span class="o">==</span> <span class="s1">&#39;&lt;&#39;</span><span class="p">:</span>
                     <span class="n">char</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">char</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unexpected end of pattern&#39;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">char</span> <span class="ow">not</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;=!&#39;</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unknown extension `?&lt;</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">char</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;unexpected end of pattern&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">char</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s1">&#39;=!&#39;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;unknown extension `?&lt;</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">char</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">char</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="n">char</span>
-                <span class="n">char</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;?&#39;</span> <span class="o">+</span> <span class="n">char</span>
+                        <span class="n">char</span> <span class="o">=</span> <span class="s1">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="n">char</span>
+                <span class="n">char</span> <span class="o">=</span> <span class="s1">&#39;?&#39;</span> <span class="o">+</span> <span class="n">char</span>
                 <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="n">char</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)])</span>
-            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;(&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="s1">&#39;(&#39;</span><span class="p">:</span>
                 <span class="n">group</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?(&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXT_SIGN</span><span class="p">,</span> <span class="s1">&#39;?(&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span>
                 <span class="c1"># conditional back reference group</span>
-                <span class="n">cond_name</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_until</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">)</span>  <span class="c1"># terminator will be consumed silently</span>
+                <span class="n">cond_name</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_until</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">)</span>  <span class="c1"># terminator will be consumed silently</span>
                 <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="n">cond_name</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond_name</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
-                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EX</span><span class="p">,</span> <span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unknown extension `?</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">char</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-                <span class="c1"># parsed.append([Flags.EX, u&#39;?&#39; + char, source.pos - 2])</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;unknown extension `?</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">char</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># parsed.append([Flags.EX, &#39;?&#39; + char, source.pos - 2])</span>
                 <span class="c1"># pass</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># without extension notation as an unnamed group</span>
@@ -503,7 +503,7 @@
         <span class="k">if</span> <span class="n">parsed</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">start_flag</span><span class="p">:</span>
             <span class="n">parsed</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">end_flag</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span><span class="p">])</span>
+            <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">end_flag</span><span class="p">,</span> <span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span><span class="p">])</span>
         <span class="k">return</span>
 
     <span class="k">def</span> <span class="nf">_parse_sub</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -525,30 +525,30 @@
             <span class="n">this_pos</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span>
             <span class="k">if</span> <span class="n">this</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">break</span>  <span class="c1"># end of pattern</span>
-            <span class="k">if</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">this</span> <span class="o">==</span> <span class="s1">&#39;)&#39;</span><span class="p">:</span>
                 <span class="k">break</span>  <span class="c1"># end of group pattern</span>
             <span class="c1"># move index of the source forward</span>
             <span class="n">source</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;.&#39;</span><span class="p">:</span>
-                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXP</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;(?:&#39;</span> <span class="o">+</span> <span class="sa">u</span><span class="s1">&#39;.&#39;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span> <span class="o">+</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">this_pos</span><span class="p">])</span>
-            <span class="k">elif</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;(&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">this</span> <span class="o">==</span> <span class="s1">&#39;.&#39;</span><span class="p">:</span>
+                <span class="n">parsed</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Flags</span><span class="o">.</span><span class="n">EXP</span><span class="p">,</span> <span class="s1">&#39;(?:&#39;</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="n">this_pos</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">this</span> <span class="o">==</span> <span class="s1">&#39;(&#39;</span><span class="p">:</span>
                 <span class="c1"># parse the whole group content `...` without consuming `(` and `)`</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_parse_group</span><span class="p">()</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;)&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">):</span>
                     <span class="c1"># unexpected end of group pattern</span>
-                    <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unbalanced parenthesis `(`&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">this_pos</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">this</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;/&#39;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;unbalanced parenthesis `(`&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">this_pos</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">this</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
                 <span class="c1"># parse the tuple whole content `...` without consuming `(` and `)`</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_parse_tuple</span><span class="p">()</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">source</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">):</span>
                     <span class="c1"># unexpected end of group pattern</span>
-                    <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unbalanced slash `/`&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">this_pos</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">this</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;invalid escape expression `</span><span class="se">\\</span><span class="s1">`&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">this</span><span class="p">))</span>
-            <span class="k">elif</span> <span class="n">this</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;[]&#39;</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;invalid set indicator `</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">this</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">this</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;*+?{,}&#39;</span> <span class="ow">or</span> <span class="n">this</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;0123456789&#39;</span> <span class="ow">or</span> <span class="n">this</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;^$&#39;</span> <span class="ow">or</span> <span class="n">this</span> <span class="ow">in</span> <span class="sa">u</span><span class="s1">&#39;|&#39;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;unbalanced slash `/`&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">pos</span> <span class="o">-</span> <span class="n">this_pos</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">this</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;invalid escape expression `</span><span class="se">\\</span><span class="s1">`&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">this</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">this</span> <span class="ow">in</span> <span class="s1">&#39;[]&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;invalid set indicator `</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">this</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">this</span> <span class="ow">in</span> <span class="s1">&#39;*+?{,}&#39;</span> <span class="ow">or</span> <span class="n">this</span> <span class="ow">in</span> <span class="s1">&#39;0123456789&#39;</span> <span class="ow">or</span> <span class="n">this</span> <span class="ow">in</span> <span class="s1">&#39;^$&#39;</span> <span class="ow">or</span> <span class="n">this</span> <span class="ow">in</span> <span class="s1">&#39;|&#39;</span><span class="p">:</span>
                 <span class="c1"># repeat with digital</span>
                 <span class="c1"># at beginning or end</span>
                 <span class="c1"># branch</span>
@@ -558,7 +558,7 @@
                 <span class="k">pass</span>
             <span class="c1"># omit non-special chars</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unsupported syntax char `</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">this</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;unsupported syntax char `</span><span class="si">%s</span><span class="s1">`&#39;</span> <span class="o">%</span> <span class="n">this</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="c1"># otherwise:</span>
                 <span class="c1"># deal with non-special chars as tuple</span>
                 <span class="c1"># parse the tuple in which `:` is not accepted</span>
@@ -580,8 +580,8 @@
         <span class="c1"># parsing exit before end of pattern</span>
         <span class="k">if</span> <span class="n">source</span><span class="o">.</span><span class="n">next</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># unexpected end of pattern</span>
-            <span class="k">assert</span> <span class="n">source</span><span class="o">.</span><span class="n">next</span> <span class="o">==</span> <span class="sa">u</span><span class="s1">&#39;)&#39;</span>
-            <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;unbalanced parenthesis `)`&#39;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">source</span><span class="o">.</span><span class="n">next</span> <span class="o">==</span> <span class="s1">&#39;)&#39;</span>
+            <span class="k">raise</span> <span class="n">source</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;unbalanced parenthesis `)`&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">parsed</span>
 
 <div class="viewcode-block" id="SeqRegexParser.parse"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.SeqRegexParser.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ndim</span><span class="p">,</span> <span class="n">pattern_str</span><span class="p">,</span> <span class="o">**</span><span class="n">placeholder_dict</span><span class="p">):</span>
@@ -609,10 +609,10 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">flag</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">LITERAL</span><span class="p">:</span>
-                    <span class="n">dump_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">string</span><span class="p">)</span>
+                    <span class="n">dump_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">string</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">string</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">dump_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
-        <span class="k">return</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dump_stack</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dump_stack</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SeqRegexParser.get_pattern_by_name"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.SeqRegexParser.get_pattern_by_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_pattern_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get original pattern string determined by group name.</span>
@@ -692,7 +692,7 @@
 
         <span class="k">for</span> <span class="n">flag</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern_stack</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">EXT_START</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">string</span> <span class="ow">in</span> <span class="p">[</span><span class="sa">u</span><span class="s1">&#39;?!&#39;</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;?&lt;!&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">string</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;?!&#39;</span><span class="p">,</span> <span class="s1">&#39;?&lt;!&#39;</span><span class="p">]:</span>
                     <span class="n">positive</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">SET_START</span><span class="p">:</span>
                 <span class="n">in_set</span> <span class="o">=</span> <span class="kc">True</span>
@@ -704,7 +704,7 @@
                     <span class="k">if</span> <span class="n">in_set</span><span class="p">:</span>
                         <span class="n">literal_set_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">literal_set_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">string</span><span class="p">})</span>  <span class="c1"># a set</span>
+                        <span class="n">literal_set_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">string</span><span class="p">]))</span>  <span class="c1"># a set</span>
             <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">Flags</span><span class="o">.</span><span class="n">SET_END</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">literal_set_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">literal_set_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
@@ -739,7 +739,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">string</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
             <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;bad escape in end&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;bad escape in end&#39;</span><span class="p">)</span>
             <span class="n">char</span> <span class="o">+=</span> <span class="n">c</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">char</span>
@@ -757,7 +757,7 @@
         <span class="k">return</span> <span class="n">this</span></div>
 
 <div class="viewcode-block" id="Tokenizer.get_while"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.Tokenizer.get_while">[docs]</a>    <span class="k">def</span> <span class="nf">get_while</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">charset</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
             <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span>
             <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">charset</span><span class="p">:</span>
@@ -773,12 +773,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__next</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;missing characters&#39;</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;missing `</span><span class="si">%s</span><span class="s1">`, unterminated characters&#39;</span> <span class="o">%</span> <span class="n">terminator</span><span class="p">,</span>
+                    <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;missing characters&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;missing `</span><span class="si">%s</span><span class="s1">`, unterminated characters&#39;</span> <span class="o">%</span> <span class="n">terminator</span><span class="p">,</span>
                                  <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="n">terminator</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;missing character&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;missing character&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">skip</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
                 <span class="k">break</span>
@@ -790,7 +790,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Tokenizer.tell"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.Tokenizer.tell">[docs]</a>    <span class="k">def</span> <span class="nf">tell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="ow">or</span> <span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Tokenizer.seek"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.Tokenizer.seek">[docs]</a>    <span class="k">def</span> <span class="nf">seek</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
@@ -799,8 +799,8 @@
 <div class="viewcode-block" id="Tokenizer.error"><a class="viewcode-back" href="../seq_re_parse.html#seq_re_parse.Tokenizer.error">[docs]</a>    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span> <span class="o">-</span> <span class="n">offset</span>
         <span class="c1"># highlight the position of error</span>
-        <span class="k">return</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> at position </span><span class="si">%d</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
-                          <span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="sa">u</span><span class="s1">&#39;.&#39;</span> <span class="o">*</span> <span class="n">position</span> <span class="o">+</span> <span class="sa">u</span><span class="s1">&#39;^&#39;</span><span class="p">))</span></div></div>
+        <span class="k">return</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> at position </span><span class="si">%d</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span> <span class="o">*</span> <span class="n">position</span> <span class="o">+</span> <span class="s1">&#39;^&#39;</span><span class="p">))</span></div></div>
 </pre></div>
 
           </div>
@@ -831,7 +831,7 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">seq_re  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SEQ RE  documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
       </ul>
     </div>

@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>seq_re.seq_re_main module &#8212; SEQ RE 0.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="seq_re.seq_re_parse module" href="seq_re_parse.html" />
+    <link rel="prev" title="seq_re.seq_re_bootstrap module" href="seq_re_bootstrap.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="seq_re_parse.html" title="seq_re.seq_re_parse module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="seq_re_bootstrap.html" title="seq_re.seq_re_bootstrap module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SEQ RE 0.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-seq_re.seq_re_main">
+<span id="seq-re-seq-re-main-module"></span><h1>seq_re.seq_re_main module<a class="headerlink" href="#module-seq_re.seq_re_main" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="main-module-of-sequence-regular-express-pattern">
+<h2>Main module of sequence regular express pattern<a class="headerlink" href="#main-module-of-sequence-regular-express-pattern" title="Permalink to this headline">¶</a></h2>
+<p>Compile the SEQ RE pattern into an ordinary regular expression (RE) pattern.
+And every dimension of the sequence is encoded and arranged into a string,  
+which is scanned by the RE pattern using search() or findall() functions.</p>
+<dl class="class">
+<dt id="seq_re.seq_re_main.SeqRegex">
+<em class="property">class </em><code class="descclassname">seq_re.seq_re_main.</code><code class="descname">SeqRegex</code><span class="sig-paren">(</span><em>ndim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_main.html#SeqRegex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Encode each dimension of the pattern and sequence into a single char.</p>
+<p>And then form the pattern and sequence into a linear string,
+which are suitable for using the ordinary regular expression (RE) to match.</p>
+<p>Finally, the match result will be located in the original sequence.</p>
+<dl class="class">
+<dt id="seq_re.seq_re_main.SeqRegex.SeqMatchObject">
+<em class="property">class </em><code class="descname">SeqMatchObject</code><span class="sig-paren">(</span><em>outer_class</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_main.html#SeqRegex.SeqMatchObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.SeqMatchObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>The class manages the match results that the SeqRegex returned,
+and the matched group can be acquired by the group_list or named_group_dict.</p>
+<dl class="method">
+<dt id="seq_re.seq_re_main.SeqRegex.SeqMatchObject.format_group_to_str">
+<code class="descname">format_group_to_str</code><span class="sig-paren">(</span><em>group_name</em>, <em>trimmed=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_main.html#SeqRegex.SeqMatchObject.format_group_to_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.SeqMatchObject.format_group_to_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output a named group matched in the result, according the format string
+indicated after the group name in the original pattern string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>group_name</strong> &#8211; The group name</li>
+<li><strong>trimmed</strong> &#8211; Remove the group name and parentheses if trimmed == True else keep them</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A string of the matched result</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="seq_re.seq_re_main.SeqRegex.SeqMatchObject.group_list">
+<code class="descname">group_list</code><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.SeqMatchObject.group_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>All indexed groups matched in a result, including named and unnamed groups</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="seq_re.seq_re_main.SeqRegex.SeqMatchObject.named_group_dict">
+<code class="descname">named_group_dict</code><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.SeqMatchObject.named_group_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>All named groups matched in a result</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="seq_re.seq_re_main.SeqRegex.SeqMatchObject.sq_re">
+<code class="descname">sq_re</code><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.SeqMatchObject.sq_re" title="Permalink to this definition">¶</a></dt>
+<dd><p>The SeqRegex Instance which returned this SeqMatchObject Instance</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="seq_re.seq_re_main.SeqRegex.SeqRegexObject">
+<em class="property">class </em><code class="descname">SeqRegexObject</code><span class="sig-paren">(</span><em>outer_class</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_main.html#SeqRegex.SeqRegexObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.SeqRegexObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>The class wraps the SeqRegex itself for the simplified use.</p>
+<dl class="method">
+<dt id="seq_re.seq_re_main.SeqRegex.SeqRegexObject.findall">
+<code class="descname">findall</code><span class="sig-paren">(</span><em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_main.html#SeqRegex.SeqRegexObject.findall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.SeqRegexObject.findall" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="seq_re.seq_re_main.SeqRegex.SeqRegexObject.finditer">
+<code class="descname">finditer</code><span class="sig-paren">(</span><em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_main.html#SeqRegex.SeqRegexObject.finditer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.SeqRegexObject.finditer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="seq_re.seq_re_main.SeqRegex.SeqRegexObject.is_useless_for">
+<code class="descname">is_useless_for</code><span class="sig-paren">(</span><em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_main.html#SeqRegex.SeqRegexObject.is_useless_for"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.SeqRegexObject.is_useless_for" title="Permalink to this definition">¶</a></dt>
+<dd><p>For preliminary screening the seq in advanced,
+to check whether regular expression has no chance of success.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nd_sequence</strong> &#8211; An N-dimensional Sequence</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if SEQ RE no chance of success else False</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="seq_re.seq_re_main.SeqRegex.SeqRegexObject.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_main.html#SeqRegex.SeqRegexObject.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.SeqRegexObject.search" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="seq_re.seq_re_main.SeqRegex.compile">
+<code class="descname">compile</code><span class="sig-paren">(</span><em>seq_pattern</em>, <em>**placeholder_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_main.html#SeqRegex.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.compile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compile a SEQ RE pattern into a ordinary RE object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>seq_pattern</strong> &#8211; A string of SEQ RE pattern</li>
+<li><strong>placeholder_dict</strong> &#8211; {placeholder_name1: p1, placeholder_name2: p2}
+in which p1, p2 could be a str or a list of str.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A SeqRegexObject Instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="seq_re.seq_re_main.SeqRegex.findall">
+<code class="descname">findall</code><span class="sig-paren">(</span><em>seq_pattern</em>, <em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_main.html#SeqRegex.findall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.findall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to the finditer() function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>seq_pattern</strong> &#8211; A string of SEQ RE pattern</li>
+<li><strong>nd_sequence</strong> &#8211; An N-dimensional Sequence</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of SeqMatchObject Instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="seq_re.seq_re_main.SeqRegex.finditer">
+<code class="descname">finditer</code><span class="sig-paren">(</span><em>seq_pattern</em>, <em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_main.html#SeqRegex.finditer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.finditer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator yielding SeqMatchObject instances
+over all non-overlapping matches for the SEQ RE pattern in n-dimension sequence.</p>
+<p>The matched group can be acquired by the group_list or named_group_dict
+of SeqMatchObject returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>seq_pattern</strong> &#8211; A string of SEQ RE pattern</li>
+<li><strong>nd_sequence</strong> &#8211; An N-dimensional Sequence</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An iterator which generates a SeqMatchObject Instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="seq_re.seq_re_main.SeqRegex.ndim">
+<code class="descname">ndim</code><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.ndim" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of dimensions</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="seq_re.seq_re_main.SeqRegex.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>seq_pattern</em>, <em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_main.html#SeqRegex.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scan through n-dimension sequence looking for
+the first location where the SEQ RE pattern produces a match,
+and return a corresponding SeqMatchObject instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>seq_pattern</strong> &#8211; A string of SEQ RE pattern</li>
+<li><strong>nd_sequence</strong> &#8211; An N-dimensional Sequence</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A SeqMatchObject Instance if match else None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="seq_re.seq_re_main.SeqRegex.seq_pattern">
+<code class="descname">seq_pattern</code><a class="headerlink" href="#seq_re.seq_re_main.SeqRegex.seq_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>The original string of pattern</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">seq_re.seq_re_main module</a><ul>
+<li><a class="reference internal" href="#main-module-of-sequence-regular-express-pattern">Main module of sequence regular express pattern</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="seq_re_bootstrap.html"
+                        title="previous chapter">seq_re.seq_re_bootstrap module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="seq_re_parse.html"
+                        title="next chapter">seq_re.seq_re_parse module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/seq_re_main.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="seq_re_parse.html" title="seq_re.seq_re_parse module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="seq_re_bootstrap.html" title="seq_re.seq_re_bootstrap module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SEQ RE 0.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, GE Ning.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.
+    </div>
+  </body>
+</html>

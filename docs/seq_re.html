@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>seq_re module &#8212; seq_re  documentation</title>
+    <title>seq_re module &#8212; SEQ RE  documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -27,7 +27,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="seq_re_bootstrap module" href="seq_re_bootstrap.html" />
-    <link rel="prev" title="Welcome to SEQ_RE’s documentation!" href="index.html" /> 
+    <link rel="prev" title="Welcome to SEQ RE’s documentation!" href="index.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -43,9 +43,9 @@
           <a href="seq_re_bootstrap.html" title="seq_re_bootstrap module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to SEQ_RE’s documentation!"
+          <a href="index.html" title="Welcome to SEQ RE’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">seq_re  documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SEQ RE  documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -56,342 +56,7 @@
             
   <div class="section" id="module-seq_re">
 <span id="seq-re-module"></span><h1>seq_re module<a class="headerlink" href="#module-seq_re" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="n-dimensional-sequence-regular-expression-seq-re">
-<h2>N-dimensional Sequence Regular Expression (SEQ_RE)<a class="headerlink" href="#n-dimensional-sequence-regular-expression-seq-re" title="Permalink to this headline">¶</a></h2>
-<p>This module provides regular expression matching operations on a sequence data structure
-like the following:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">seq_m_n</span> <span class="o">=</span> <span class="p">[[</span><span class="n">str_11</span><span class="p">,</span> <span class="n">str_12</span><span class="p">,</span> <span class="o">...</span> <span class="n">str_1n</span><span class="p">],</span>  
-           <span class="p">[</span><span class="n">str_21</span><span class="p">,</span> <span class="n">str_22</span><span class="p">,</span> <span class="o">...</span> <span class="n">str_2n</span><span class="p">],</span>  
-            <span class="o">...</span><span class="p">,</span>  
-           <span class="p">[</span><span class="n">str_m1</span><span class="p">,</span> <span class="n">str_m2</span><span class="p">,</span> <span class="o">...</span> <span class="n">str_mn</span><span class="p">]]</span>
-</pre></div>
-</div>
-<p>The sequence is a homogeneous multidimensional array (齐次多维数组).</p>
-<p>A element in each dimension can be considered as either a string, a word, a phrase,
-a char, a flag, a token or a tag, and maybe a set of tags or values (multi-values) later.</p>
-<p>To match a pattern in an n-dimension sequence,
-the SEQ_RE patterns is written like one of the examples:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>(/::PERSON/+) /was|has been/ /an/? .{0,3} (/^painter|drawing artist|画家/)
-
-(?P&lt;name@0,1,2&gt;/::PERSON/) /:VERB be:/ /born/ /on/ (?P&lt;birthday@0:3&gt;(/::NUMBER|MONTH/|/-/){2,3})
-</pre></div>
-</div>
-<div class="section" id="the-syntax-of-seq-re-pattern">
-<h3>1. The syntax of SEQ_RE pattern<a class="headerlink" href="#the-syntax-of-seq-re-pattern" title="Permalink to this headline">¶</a></h3>
-<p>A SEQ_RE pattern most looks like the ordinary regular express (RE) used in Python,
-in which the delimiters <code class="docutils literal"><span class="pre">/.../</span></code> is to indicate a tuple of n dimensions.</p>
-<div class="section" id="inside">
-<h4>1.1 Inside <code class="docutils literal"><span class="pre">/.../</span></code><a class="headerlink" href="#inside" title="Permalink to this headline">¶</a></h4>
-<ul>
-<li><p class="first"><code class="docutils literal"><span class="pre">/</span></code></p>
-<p>is the beginning and end delimiter of the tuple, e.g. <code class="docutils literal"><span class="pre">/.../</span></code>.</p>
-</li>
-<li><p class="first"><code class="docutils literal"><span class="pre">:</span></code></p>
-<p>separates the each dimension in the tuple, 
-and the continuous <code class="docutils literal"><span class="pre">:</span></code> at the tail can be omitted, 
-e.g. <code class="docutils literal"><span class="pre">/A|B:X:/</span></code>, <code class="docutils literal"><span class="pre">/A|B:X/</span></code>.</p>
-</li>
-<li><p class="first"><code class="docutils literal"><span class="pre">|</span></code></p>
-<p>indicates the different values of one dimension, e.g. <code class="docutils literal"><span class="pre">A|B</span></code>. 
-These values form a set, and any string in the set will be matched, 
-e.g. <code class="docutils literal"><span class="pre">A|B</span></code> will match <code class="docutils literal"><span class="pre">A</span></code> or <code class="docutils literal"><span class="pre">B</span></code>.</p>
-</li>
-<li><p class="first"><code class="docutils literal"><span class="pre">^</span></code></p>
-<p>be the first character in one dimension, 
-all the string that are not in the value set of this dimension will be matched. 
-And <code class="docutils literal"><span class="pre">^</span></code> has no special meaning if it’s not the first character of the dimension. 
-If <code class="docutils literal"><span class="pre">^</span></code> comes the first character in a dimension but it is a part of a literal string, 
-<code class="docutils literal"><span class="pre">\^</span></code> should be used to escape it.</p>
-</li>
-<li><p class="first">The priority of above-mentioned operations:</p>
-<p><code class="docutils literal"><span class="pre">/</span></code> &gt; <code class="docutils literal"><span class="pre">:</span></code> &gt; <code class="docutils literal"><span class="pre">^</span></code> (not literal) &gt; <code class="docutils literal"><span class="pre">|</span></code> &gt; <code class="docutils literal"><span class="pre">^</span></code> (literal) .</p>
-</li>
-<li><p class="first"><code class="docutils literal"><span class="pre">\</span></code></p>
-<p>is an escaping symbol before aforementioned special characters. 
-Characters other than <code class="docutils literal"><span class="pre">/</span></code>, <code class="docutils literal"><span class="pre">:</span></code> or <code class="docutils literal"><span class="pre">\</span></code> lose their special meaning inside <code class="docutils literal"><span class="pre">／...／</span></code>.
-To express <code class="docutils literal"><span class="pre">/</span></code>, <code class="docutils literal"><span class="pre">:</span></code> or <code class="docutils literal"><span class="pre">|</span></code> in literal, <code class="docutils literal"><span class="pre">\</span></code> should be added before <code class="docutils literal"><span class="pre">/</span></code>, <code class="docutils literal"><span class="pre">:</span></code> or <code class="docutils literal"><span class="pre">|</span></code>.
-Meanwhile, to represent a literal backslash <code class="docutils literal"><span class="pre">\</span></code> before <code class="docutils literal"><span class="pre">/</span></code>, <code class="docutils literal"><span class="pre">:</span></code> or <code class="docutils literal"><span class="pre">|</span></code>,
-<code class="docutils literal"><span class="pre">\</span></code> should be used in the plain text 
-that is to say <code class="docutils literal"><span class="pre">'\\\\'</span></code> must be used in the python code.</p>
-</li>
-</ul>
-</div>
-<div class="section" id="outside">
-<h4>1.2 Outside <code class="docutils literal"><span class="pre">/.../</span></code><a class="headerlink" href="#outside" title="Permalink to this headline">¶</a></h4>
-<ul class="simple">
-<li>The special meanings of special characters in the ordinary RE are only available here,
-but with the limitations discussed below.<ol class="arabic">
-<li><strong>*Not*</strong> support the following escaped special characters: 
-<code class="docutils literal"><span class="pre">\number</span></code>, <code class="docutils literal"><span class="pre">\A</span></code>, <code class="docutils literal"><span class="pre">\b</span></code>, <code class="docutils literal"><span class="pre">\B</span></code>, <code class="docutils literal"><span class="pre">\d</span></code>, <code class="docutils literal"><span class="pre">\D</span></code>, <code class="docutils literal"><span class="pre">\s</span></code>, <code class="docutils literal"><span class="pre">\S</span></code>, 
-<code class="docutils literal"><span class="pre">\w</span></code>, <code class="docutils literal"><span class="pre">\W</span></code>, <code class="docutils literal"><span class="pre">\Z</span></code>, <code class="docutils literal"><span class="pre">\a</span></code>, <code class="docutils literal"><span class="pre">\b</span></code>, <code class="docutils literal"><span class="pre">\f</span></code>, <code class="docutils literal"><span class="pre">\n</span></code>, <code class="docutils literal"><span class="pre">\r</span></code>, <code class="docutils literal"><span class="pre">\t</span></code>, <code class="docutils literal"><span class="pre">\v</span></code>, 
-<code class="docutils literal"><span class="pre">\x</span></code>.</li>
-<li><strong>*Not*</strong> support <code class="docutils literal"><span class="pre">[</span></code> and <code class="docutils literal"><span class="pre">]</span></code> as special characters to indicate a set of characters.</li>
-<li><strong>*Not*</strong> support ranges of characters, 
-such as <code class="docutils literal"><span class="pre">[0-9A-Za-z]</span></code>, <code class="docutils literal"><span class="pre">[\u4E00-\u9FBB\u3007]</span></code> (Unihan and Chinese character <code class="docutils literal"><span class="pre">〇</span></code>)
-used in ordinary RE.</li>
-<li>The whitespace and non-special characters are ignored.</li>
-</ol>
-</li>
-<li><code class="docutils literal"><span class="pre">.</span></code> is an abbreviation of <code class="docutils literal"><span class="pre">/:::/</span></code>.</li>
-<li>The named groups in the pattern are very useful. 
-As an extension, a format indices string starts with <code class="docutils literal"><span class="pre">&#64;</span></code> can be followed after the group name,
-to describe which dimensions of the tuples in this group will be output as the result.
-For example: <code class="docutils literal"><span class="pre">(?P&lt;name&#64;d1,d2:d3&gt;...)</span></code>, 
-in which <code class="docutils literal"><span class="pre">d1</span></code>, <code class="docutils literal"><span class="pre">d2</span></code>, <code class="docutils literal"><span class="pre">d3</span></code> is the index number of a dimension.<ol class="arabic">
-<li><code class="docutils literal"><span class="pre">&#64;</span></code> means the matched result in all of dimensions will be output.</li>
-<li><code class="docutils literal"><span class="pre">&#64;0,2:4</span></code> means the matched result only in the 0th 
-and from 2nd to 3rd of dimensions will be output.</li>
-<li><code class="docutils literal"><span class="pre">&#64;&#64;</span></code> means the pattern of the group itself will be output other than the matched result.</li>
-</ol>
-</li>
-</ul>
-</div>
-<div class="section" id="boolean-logic-in-the">
-<h4>1.3 Boolean logic in the <code class="docutils literal"><span class="pre">/.../</span></code><a class="headerlink" href="#boolean-logic-in-the" title="Permalink to this headline">¶</a></h4>
-<p>Given a 3-D sequence <code class="docutils literal"><span class="pre">[[s1,</span> <span class="pre">s2,</span> <span class="pre">s3],</span> <span class="pre">...</span> <span class="pre">]</span></code>,</p>
-<ul>
-<li><p class="first">AND</p>
-<p><code class="docutils literal"><span class="pre">/X::Y/</span></code> will match <code class="docutils literal"><span class="pre">s1</span></code> == <code class="docutils literal"><span class="pre">X</span></code> &amp;&amp; <code class="docutils literal"><span class="pre">s2</span></code> == <code class="docutils literal"><span class="pre">Y</span></code>.
-Its behavior looks like the ordinary RE pattern <code class="docutils literal"><span class="pre">(?:X.Y)</span></code>.</p>
-</li>
-<li><p class="first">OR</p>
-<p><code class="docutils literal"><span class="pre">/X::/|/::Y/</span></code> will match <code class="docutils literal"><span class="pre">s1</span></code> == <code class="docutils literal"><span class="pre">X</span></code> || <code class="docutils literal"><span class="pre">s2</span></code> == <code class="docutils literal"><span class="pre">Y</span></code>.
-Its behavior looks like the ordinary RE pattern <code class="docutils literal"><span class="pre">(?:X..)|(?:..Y)</span></code></p>
-</li>
-<li><p class="first">NOT</p>
-<p>If <code class="docutils literal"><span class="pre">/:^P:/</span></code> will match <code class="docutils literal"><span class="pre">s2</span></code> != <code class="docutils literal"><span class="pre">P</span></code>.
-Its behavior looks like the ordinary RE pattern <code class="docutils literal"><span class="pre">(?:.[^P].)</span></code>.</p>
-<p>We can also use a negative lookahead assertion of ordinary RE,
-to give a negative covered the following.
-e.g. <code class="docutils literal"><span class="pre">(?!/:P://Q/)/:://::/</span></code> &lt;==&gt; <code class="docutils literal"><span class="pre">/:^P://^Q::/</span></code>,
-which behavior looks like the ordinary RE pattern <code class="docutils literal"><span class="pre">(?!(?:.P.))...</span></code>.</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="section" id="notes">
-<h3>2. Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
-<p><strong>*Not*</strong> support comparing the number of figures.</p>
-<p>Multi-values in one dimension is not supported now, but this feature may be improved later.</p>
-</div>
-<div class="section" id="examples">
-<h3>3. Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
-<p>The usage of seq_re module:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">seq_re</span>
-
-<span class="n">sr</span> <span class="o">=</span> <span class="n">seq_re</span><span class="o">.</span><span class="n">SeqRegex</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="o">**</span><span class="n">placeholder_dict</span><span class="p">)</span>
-<span class="n">match</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">match</span><span class="p">:</span>
-    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">group_list</span><span class="p">:</span>
-        <span class="nb">print</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;`&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">named_group_dict</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">():</span>
-        <span class="nb">print</span> <span class="n">name</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">format_group_to_str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="section" id="the-apis-of-seq-re-module">
-<h2>The APIs of SEQ_RE module<a class="headerlink" href="#the-apis-of-seq-re-module" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="seq_re.SeqRegex">
-<em class="property">class </em><code class="descclassname">seq_re.</code><code class="descname">SeqRegex</code><span class="sig-paren">(</span><em>ndim</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Encode each dimension of the pattern and sequence into a single char.</p>
-<p>And then form the pattern and sequence into a linear string, 
-which are suitable for using the ordinary regular expression (RE) to match.</p>
-<p>Finally, the match result will be located in the original sequence.</p>
-<dl class="class">
-<dt id="seq_re.SeqRegex.SeqMatchObject">
-<em class="property">class </em><code class="descname">SeqMatchObject</code><span class="sig-paren">(</span><em>outer_class</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex.SeqMatchObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex.SeqMatchObject" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>The class manages the match results that the SeqRegex returned, 
-and the matched group can be acquired by the group_list or named_group_dict.</p>
-<dl class="method">
-<dt id="seq_re.SeqRegex.SeqMatchObject.format_group_to_str">
-<code class="descname">format_group_to_str</code><span class="sig-paren">(</span><em>group_name</em>, <em>trimmed=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex.SeqMatchObject.format_group_to_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex.SeqMatchObject.format_group_to_str" title="Permalink to this definition">¶</a></dt>
-<dd><p>Output a named group matched in the result, according the format string 
-indicated after the group name in the original pattern string.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>group_name</strong> &#8211; The group name</li>
-<li><strong>trimmed</strong> &#8211; Remove the group name and parentheses if trimmed == True else keep them</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A string of the matched result</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="seq_re.SeqRegex.SeqMatchObject.group_list">
-<code class="descname">group_list</code><a class="headerlink" href="#seq_re.SeqRegex.SeqMatchObject.group_list" title="Permalink to this definition">¶</a></dt>
-<dd><p>All indexed groups matched in a result, including named and unnamed groups</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="seq_re.SeqRegex.SeqMatchObject.named_group_dict">
-<code class="descname">named_group_dict</code><a class="headerlink" href="#seq_re.SeqRegex.SeqMatchObject.named_group_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>All named groups matched in a result</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="seq_re.SeqRegex.SeqMatchObject.sq_re">
-<code class="descname">sq_re</code><a class="headerlink" href="#seq_re.SeqRegex.SeqMatchObject.sq_re" title="Permalink to this definition">¶</a></dt>
-<dd><p>The SeqRegex Instance which returned this SeqMatchObject Instance</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="seq_re.SeqRegex.SeqRegexObject">
-<em class="property">class </em><code class="descname">SeqRegexObject</code><span class="sig-paren">(</span><em>outer_class</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex.SeqRegexObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex.SeqRegexObject" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>The class wraps the SeqRegex itself for the simplified use.</p>
-<dl class="method">
-<dt id="seq_re.SeqRegex.SeqRegexObject.findall">
-<code class="descname">findall</code><span class="sig-paren">(</span><em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex.SeqRegexObject.findall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex.SeqRegexObject.findall" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="seq_re.SeqRegex.SeqRegexObject.finditer">
-<code class="descname">finditer</code><span class="sig-paren">(</span><em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex.SeqRegexObject.finditer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex.SeqRegexObject.finditer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="seq_re.SeqRegex.SeqRegexObject.is_useless_for">
-<code class="descname">is_useless_for</code><span class="sig-paren">(</span><em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex.SeqRegexObject.is_useless_for"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex.SeqRegexObject.is_useless_for" title="Permalink to this definition">¶</a></dt>
-<dd><p>For preliminary screening the seq in advanced, 
-to check whether regular expression has no chance of success.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>nd_sequence</strong> &#8211; An N-dimensional Sequence</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if SEQ_RE no chance of success else False</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="seq_re.SeqRegex.SeqRegexObject.search">
-<code class="descname">search</code><span class="sig-paren">(</span><em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex.SeqRegexObject.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex.SeqRegexObject.search" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="method">
-<dt id="seq_re.SeqRegex.compile">
-<code class="descname">compile</code><span class="sig-paren">(</span><em>seq_pattern</em>, <em>**placeholder_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex.compile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex.compile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compile a SEQ_RE pattern into a ordinary RE object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>seq_pattern</strong> &#8211; A string of SEQ_RE pattern</li>
-<li><strong>placeholder_dict</strong> &#8211; {placeholder_name1: p1, placeholder_name2: p2}  
-in which p1, p2 could be a str or a list of str.</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A SeqRegexObject Instance</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="seq_re.SeqRegex.findall">
-<code class="descname">findall</code><span class="sig-paren">(</span><em>seq_pattern</em>, <em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex.findall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex.findall" title="Permalink to this definition">¶</a></dt>
-<dd><p>Similar to the finditer() function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>seq_pattern</strong> &#8211; A string of SEQ_RE pattern</li>
-<li><strong>nd_sequence</strong> &#8211; An N-dimensional Sequence</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of SeqMatchObject Instance</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="seq_re.SeqRegex.finditer">
-<code class="descname">finditer</code><span class="sig-paren">(</span><em>seq_pattern</em>, <em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex.finditer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex.finditer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return an iterator yielding SeqMatchObject instances 
-over all non-overlapping matches for the SEQ_RE pattern in n-dimension sequence.</p>
-<p>The matched group can be acquired by the group_list or named_group_dict 
-of SeqMatchObject returned.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>seq_pattern</strong> &#8211; A string of SEQ_RE pattern</li>
-<li><strong>nd_sequence</strong> &#8211; An N-dimensional Sequence</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An iterator which generates a SeqMatchObject Instance</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="seq_re.SeqRegex.ndim">
-<code class="descname">ndim</code><a class="headerlink" href="#seq_re.SeqRegex.ndim" title="Permalink to this definition">¶</a></dt>
-<dd><p>The number of dimensions</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="seq_re.SeqRegex.search">
-<code class="descname">search</code><span class="sig-paren">(</span><em>seq_pattern</em>, <em>nd_sequence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re.html#SeqRegex.search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.SeqRegex.search" title="Permalink to this definition">¶</a></dt>
-<dd><p>Scan through n-dimension sequence looking for 
-the first location where the SEQ_RE pattern produces a match, 
-and return a corresponding SeqMatchObject instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>seq_pattern</strong> &#8211; A string of SEQ_RE pattern</li>
-<li><strong>nd_sequence</strong> &#8211; An N-dimensional Sequence</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A SeqMatchObject Instance if match else None</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="seq_re.SeqRegex.seq_pattern">
-<code class="descname">seq_pattern</code><a class="headerlink" href="#seq_re.SeqRegex.seq_pattern" title="Permalink to this definition">¶</a></dt>
-<dd><p>The original string of pattern</p>
-</dd></dl>
-
-</dd></dl>
-
-</div>
+<p>N-dimensional Sequence Regular Expression (SEQ RE)</p>
 </div>
 
 
@@ -400,28 +65,9 @@ and return a corresponding SeqMatchObject instance.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">seq_re module</a><ul>
-<li><a class="reference internal" href="#n-dimensional-sequence-regular-expression-seq-re">N-dimensional Sequence Regular Expression (SEQ_RE)</a><ul>
-<li><a class="reference internal" href="#the-syntax-of-seq-re-pattern">1. The syntax of SEQ_RE pattern</a><ul>
-<li><a class="reference internal" href="#inside">1.1 Inside <code class="docutils literal"><span class="pre">/.../</span></code></a></li>
-<li><a class="reference internal" href="#outside">1.2 Outside <code class="docutils literal"><span class="pre">/.../</span></code></a></li>
-<li><a class="reference internal" href="#boolean-logic-in-the">1.3 Boolean logic in the <code class="docutils literal"><span class="pre">/.../</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#notes">2. Notes</a></li>
-<li><a class="reference internal" href="#examples">3. Examples</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#the-apis-of-seq-re-module">The APIs of SEQ_RE module</a></li>
-</ul>
-</li>
-</ul>
-
   <h4>Previous topic</h4>
   <p class="topless"><a href="index.html"
-                        title="previous chapter">Welcome to SEQ_RE&#8217;s documentation!</a></p>
+                        title="previous chapter">Welcome to SEQ RE&#8217;s documentation!</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="seq_re_bootstrap.html"
                         title="next chapter">seq_re_bootstrap module</a></p>
@@ -459,9 +105,9 @@ and return a corresponding SeqMatchObject instance.</p>
           <a href="seq_re_bootstrap.html" title="seq_re_bootstrap module"
              >next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Welcome to SEQ_RE’s documentation!"
+          <a href="index.html" title="Welcome to SEQ RE’s documentation!"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">seq_re  documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">SEQ RE  documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

@@ -1,0 +1,438 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>seq_re.seq_re_main &#8212; SEQ RE 0.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SEQ RE 0.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for seq_re.seq_re_main</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding:utf-8</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Main module of sequence regular express pattern</span>
+<span class="sd">===============================================</span>
+<span class="sd">Compile the SEQ RE pattern into an ordinary regular expression (RE) pattern.</span>
+<span class="sd">And every dimension of the sequence is encoded and arranged into a string,  </span>
+<span class="sd">which is scanned by the RE pattern using search() or findall() functions.  </span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># todo: deal with multi-value elements in the sequence</span>
+<span class="c1"># todo: assign an default name uniquely for group</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;GE Ning &lt;https://github.com/gening/seq_re&gt;&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright (C) 2017 GE Ning&quot;</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;LGPL-3.0&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.2&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">seq_re_parse</span> <span class="k">as</span> <span class="nn">sp</span>
+
+<span class="c1"># compatible with Python 2 &amp; 3</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># Python 2</span>
+    <span class="c1"># noinspection PyCompatibility</span>
+    <span class="n">unichr</span><span class="p">(</span><span class="mi">20013</span><span class="p">)</span>
+    <span class="n">unicode_char</span> <span class="o">=</span> <span class="n">unichr</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+    <span class="c1"># Python 3</span>
+    <span class="n">unicode_char</span> <span class="o">=</span> <span class="nb">chr</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># Python 2</span>
+    <span class="c1"># noinspection PyCompatibility</span>
+    <span class="n">unicode</span><span class="p">()</span>
+    <span class="n">unicode_str</span> <span class="o">=</span> <span class="n">unicode</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+    <span class="c1"># Python 3</span>
+    <span class="n">unicode_str</span> <span class="o">=</span> <span class="nb">str</span>
+
+
+<div class="viewcode-block" id="SeqRegex"><a class="viewcode-back" href="../../seq_re.html#seq_re.seq_re_main.SeqRegex">[docs]</a><span class="k">class</span> <span class="nc">SeqRegex</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Encode each dimension of the pattern and sequence into a single char.</span>
+
+<span class="sd">    And then form the pattern and sequence into a linear string,</span>
+<span class="sd">    which are suitable for using the ordinary regular expression (RE) to match.</span>
+
+<span class="sd">    Finally, the match result will be located in the original sequence.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># ######################################## #</span>
+    <span class="c1">#                                          #</span>
+    <span class="c1">#  Class Members                           #</span>
+    <span class="c1">#                                          #</span>
+    <span class="c1"># ######################################## #</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ndim</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ndim</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span> <span class="o">=</span> <span class="n">ndim</span>  <span class="c1"># the number of dimensions</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;invalid number of dimensions&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seq_pattern</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the original string of pattern</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_placeholder_dict</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the substitutions of placeholders in the pattern</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_encode</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># encoding dict：a phrase (words) =&gt; a single char of unicode</span>
+        <span class="c1"># self._map_decode = dict()  # decoding dict：a single char of unicode =&gt; original words</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_counter</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># counter：the number of different phrases</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">SeqRegexParser</span><span class="p">()</span>  <span class="c1"># the SeqRegexPasrse object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regex</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the ordinary regular expression object: RegexObject</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ndim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The number of dimensions&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">seq_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The original string of pattern&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seq_pattern</span>
+
+    <span class="k">def</span> <span class="nf">_clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seq_pattern</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_placeholder_dict</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_encode</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="c1"># self._map_decode.clear()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regex</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># ######################################## #</span>
+    <span class="c1">#                                          #</span>
+    <span class="c1">#  Encoding Functions                      #</span>
+    <span class="c1">#                                          #</span>
+    <span class="c1"># ######################################## #</span>
+
+    <span class="k">def</span> <span class="nf">_encode_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decoded_str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Encode a string.</span>
+
+<span class="sd">        :param decoded_str: a string to be encoded</span>
+<span class="sd">        :param default: the default string to replace the string which has not been encoded</span>
+<span class="sd">        :return: an encoded string if default is not None else default</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">decoded_str</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_encode</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_encode</span><span class="p">[</span><span class="n">decoded_str</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># 映射到从&#39;中&#39;字开始连续的unicode字符</span>
+            <span class="c1"># continuously map to the unicode chars from the chinese u&#39;中&#39;</span>
+            <span class="c1"># ord(u&#39;中&#39;) = 20013</span>
+            <span class="c1"># sys.maxunicode = 65535 or 1114111</span>
+            <span class="c1"># so, at least nearly 35k unicode characters can be used to encode</span>
+            <span class="c1"># words, phrases, tokens, tags in a pattern.</span>
+            <span class="c1"># and the words from text to look up, which are not occurred in the pattern,</span>
+            <span class="c1"># are ignored during the encoding.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">encoded_str</span> <span class="o">=</span> <span class="n">unicode_char</span><span class="p">(</span><span class="mi">20013</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_counter</span><span class="p">)</span>  <span class="c1"># ord(u&#39;中&#39;) = 20013</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;too many different string&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_map_encode</span><span class="p">[</span><span class="n">decoded_str</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoded_str</span>
+            <span class="c1"># self._map_decode[encoded_str] = decoded_str</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_map_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="n">encoded_str</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">default</span>
+
+    <span class="k">def</span> <span class="nf">_encode_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Encode the original string SEQ RE pattern into a equivalent of ordinary RE pattern.</span>
+
+<span class="sd">        :return: a ordinary RE string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seq_pattern</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_placeholder_dict</span><span class="p">)</span>
+        <span class="c1"># transform _pattern_stack into pseudo regular expression string for check or test</span>
+        <span class="n">pattern_str_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">parsed</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parsed</span><span class="p">)):</span>
+                <span class="n">flag</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="n">parsed</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="n">sp</span><span class="o">.</span><span class="n">Flags</span><span class="o">.</span><span class="n">LITERAL</span><span class="p">:</span>
+                    <span class="n">pattern_str_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_encode_str</span><span class="p">(</span><span class="n">string</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">string</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">pattern_str_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+        <span class="c1"># for debug</span>
+        <span class="c1"># print self._parser.dump()</span>
+        <span class="c1"># print &#39;&#39;.join(pattern_str_list)</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pattern_str_list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_encode_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Encode the n-dimension sequence into a linear of string for matching the pattern&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nd_sequence</span> <span class="o">=</span> <span class="n">nd_sequence</span>
+        <span class="n">stack_encoded</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">nd_tuple</span> <span class="ow">in</span> <span class="n">nd_sequence</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">nd_tuple</span><span class="p">:</span>
+                <span class="c1"># string not presenting in the pattern needs not to be encoded into a unicode char</span>
+                <span class="n">stack_encoded</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_encode_str</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stack_encoded</span><span class="p">)</span>
+
+    <span class="c1"># ######################################## #</span>
+    <span class="c1">#                                          #</span>
+    <span class="c1">#  Result Objects                          #</span>
+    <span class="c1">#                                          #</span>
+    <span class="c1"># ######################################## #</span>
+
+<div class="viewcode-block" id="SeqRegex.SeqRegexObject"><a class="viewcode-back" href="../../seq_re.html#seq_re.seq_re_main.SeqRegex.SeqRegexObject">[docs]</a>    <span class="k">class</span> <span class="nc">SeqRegexObject</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The class wraps the SeqRegex itself for the simplified use.&quot;&quot;&quot;</span>
+
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_outer&#39;</span><span class="p">,)</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outer_class</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outer_class</span><span class="p">,</span> <span class="n">SeqRegex</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outer</span> <span class="o">=</span> <span class="n">outer_class</span>
+
+<div class="viewcode-block" id="SeqRegex.SeqRegexObject.finditer"><a class="viewcode-back" href="../../seq_re.html#seq_re.seq_re_main.SeqRegex.SeqRegexObject.finditer">[docs]</a>        <span class="k">def</span> <span class="nf">finditer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outer</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_outer</span><span class="o">.</span><span class="n">_seq_pattern</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SeqRegex.SeqRegexObject.search"><a class="viewcode-back" href="../../seq_re.html#seq_re.seq_re_main.SeqRegex.SeqRegexObject.search">[docs]</a>        <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outer</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_outer</span><span class="o">.</span><span class="n">_seq_pattern</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SeqRegex.SeqRegexObject.findall"><a class="viewcode-back" href="../../seq_re.html#seq_re.seq_re_main.SeqRegex.SeqRegexObject.findall">[docs]</a>        <span class="k">def</span> <span class="nf">findall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outer</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_outer</span><span class="o">.</span><span class="n">_seq_pattern</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SeqRegex.SeqRegexObject.is_useless_for"><a class="viewcode-back" href="../../seq_re.html#seq_re.seq_re_main.SeqRegex.SeqRegexObject.is_useless_for">[docs]</a>        <span class="k">def</span> <span class="nf">is_useless_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;For preliminary screening the seq in advanced,</span>
+<span class="sd">            to check whether regular expression has no chance of success.</span>
+
+<span class="sd">            :param nd_sequence: An N-dimensional Sequence</span>
+<span class="sd">            :return: True if SEQ RE no chance of success else False</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># for literals in the negative set,</span>
+            <span class="c1"># not sure whether they should or should not be in the seq.</span>
+            <span class="c1"># for literals in the positive set,</span>
+            <span class="c1"># any one could be in the seq,</span>
+            <span class="c1"># and their order cannot be determined in advanced.</span>
+            <span class="n">positive_sets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outer</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">get_positive_literal_sets</span><span class="p">()</span>
+            <span class="n">useless</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">for</span> <span class="n">each_set</span> <span class="ow">in</span> <span class="n">positive_sets</span><span class="p">:</span>
+                <span class="n">useless</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">for</span> <span class="n">literal</span> <span class="ow">in</span> <span class="n">each_set</span><span class="p">:</span>
+                    <span class="c1"># seq.find(literal) &gt; -1 but seq is not a string</span>
+                    <span class="k">for</span> <span class="n">nd_tuple</span> <span class="ow">in</span> <span class="n">nd_sequence</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">nd_tuple</span><span class="p">:</span>
+                            <span class="c1"># list, set</span>
+                            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="n">literal</span> <span class="ow">in</span> <span class="n">e</span><span class="p">:</span>
+                                    <span class="n">useless</span> <span class="o">=</span> <span class="kc">False</span>
+                                    <span class="k">break</span>
+                            <span class="c1"># string</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">literal</span> <span class="o">==</span> <span class="n">e</span><span class="p">:</span>
+                                    <span class="n">useless</span> <span class="o">=</span> <span class="kc">False</span>
+                                    <span class="k">break</span>
+            <span class="k">return</span> <span class="n">useless</span></div></div>
+
+<div class="viewcode-block" id="SeqRegex.SeqMatchObject"><a class="viewcode-back" href="../../seq_re.html#seq_re.seq_re_main.SeqRegex.SeqMatchObject">[docs]</a>    <span class="k">class</span> <span class="nc">SeqMatchObject</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The class manages the match results that the SeqRegex returned,</span>
+<span class="sd">        and the matched group can be acquired by the group_list or named_group_dict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;group_list&#39;</span><span class="p">,</span> <span class="s1">&#39;named_group_dict&#39;</span><span class="p">,</span> <span class="s1">&#39;sq_re&#39;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outer_class</span><span class="p">):</span>
+            <span class="c1"># public member</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">group_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="sd">&quot;&quot;&quot;All indexed groups matched in a result, including named and unnamed groups&quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">named_group_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># add index to consider as collections.OrderedDict</span>
+            <span class="sd">&quot;&quot;&quot;All named groups matched in a result&quot;&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sq_re</span> <span class="o">=</span> <span class="n">outer_class</span>  <span class="c1"># The outer class is the SeqRegex itself</span>
+            <span class="sd">&quot;&quot;&quot;The SeqRegex Instance which returned this SeqMatchObject Instance&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SeqRegex.SeqMatchObject.format_group_to_str"><a class="viewcode-back" href="../../seq_re.html#seq_re.seq_re_main.SeqRegex.SeqMatchObject.format_group_to_str">[docs]</a>        <span class="k">def</span> <span class="nf">format_group_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">trimmed</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Output a named group matched in the result, according the format string</span>
+<span class="sd">            indicated after the group name in the original pattern string.</span>
+
+<span class="sd">            :param group_name: The group name</span>
+<span class="sd">            :param trimmed: Remove the group name and parentheses if trimmed == True else keep them</span>
+<span class="sd">            :return: A string of the matched result</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">formatted_str_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">def</span> <span class="nf">formatter</span><span class="p">(</span><span class="n">nd_elements</span><span class="p">):</span>
+                <span class="n">formatted_str</span> <span class="o">=</span> <span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unicode_str</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+                                          <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">)</span> <span class="k">else</span>
+                                          <span class="n">unicode_str</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="k">for</span> <span class="n">values</span> <span class="ow">in</span>
+                                          <span class="n">nd_elements</span><span class="p">])</span>  <span class="c1"># support multi-value element</span>
+                <span class="n">formatted_str</span> <span class="o">=</span> <span class="n">formatted_str</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">formatted_str</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;/</span><span class="si">%s</span><span class="s1">/&#39;</span> <span class="o">%</span> <span class="n">formatted_str</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="s1">&#39;.&#39;</span>
+
+            <span class="k">if</span> <span class="n">group_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_group_dict</span><span class="p">:</span>
+                <span class="n">group_index</span><span class="p">,</span> <span class="n">match_sequence</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_group_dict</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span>
+                <span class="c1"># noinspection PyProtectedMember</span>
+                <span class="k">if</span> <span class="n">group_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sq_re</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">named_group_format_indices</span><span class="p">:</span>
+                    <span class="c1"># noinspection PyProtectedMember</span>
+                    <span class="n">format_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sq_re</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">named_group_format_indices</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">format_indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">match_tuple</span> <span class="ow">in</span> <span class="n">match_sequence</span><span class="p">:</span>
+                            <span class="n">formatted_tuple</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sq_re</span><span class="o">.</span><span class="n">ndim</span>
+                            <span class="k">for</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="ow">in</span> <span class="n">format_indices</span><span class="p">:</span>
+                                <span class="n">formatted_tuple</span><span class="p">[</span><span class="n">low</span><span class="p">:</span> <span class="n">high</span><span class="p">]</span> <span class="o">=</span> <span class="n">match_tuple</span><span class="p">[</span><span class="n">low</span><span class="p">:</span> <span class="n">high</span><span class="p">]</span>
+                            <span class="n">formatted_str_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">formatter</span><span class="p">(</span><span class="n">formatted_tuple</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># noinspection PyProtectedMember</span>
+                        <span class="c1"># `@@` =&gt; get pattern itself</span>
+                        <span class="n">pattern_sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sq_re</span><span class="o">.</span><span class="n">_parser</span><span class="o">.</span><span class="n">get_pattern_by_name</span><span class="p">(</span><span class="n">group_name</span><span class="p">)</span>
+                        <span class="c1"># `(?:P&lt;name@@&gt;pattern_sub)`</span>
+                        <span class="k">if</span> <span class="n">trimmed</span><span class="p">:</span>
+                            <span class="c1"># `pattern_sub`</span>
+                            <span class="n">pattern_sub</span> <span class="o">=</span> <span class="n">pattern_sub</span><span class="p">[</span><span class="n">pattern_sub</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;&gt;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">formatted_str_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pattern_sub</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># default formatter</span>
+                    <span class="k">for</span> <span class="n">match_tuple</span> <span class="ow">in</span> <span class="n">match_sequence</span><span class="p">:</span>
+                        <span class="n">formatted_str_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">formatter</span><span class="p">(</span><span class="n">match_tuple</span><span class="p">))</span>
+            <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted_str_list</span><span class="p">)</span></div></div>
+
+    <span class="c1"># ######################################## #</span>
+    <span class="c1">#                                          #</span>
+    <span class="c1">#  Regex Matching                          #</span>
+    <span class="c1">#                                          #</span>
+    <span class="c1"># ######################################## #</span>
+
+<div class="viewcode-block" id="SeqRegex.compile"><a class="viewcode-back" href="../../seq_re.html#seq_re.seq_re_main.SeqRegex.compile">[docs]</a>    <span class="k">def</span> <span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq_pattern</span><span class="p">,</span> <span class="o">**</span><span class="n">placeholder_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compile a SEQ RE pattern into a ordinary RE object.</span>
+
+<span class="sd">        :param seq_pattern: A string of SEQ RE pattern</span>
+<span class="sd">        :param placeholder_dict: {placeholder_name1: p1, placeholder_name2: p2}</span>
+<span class="sd">                                 in which p1, p2 could be a str or a list of str.</span>
+<span class="sd">        :return: A SeqRegexObject Instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seq_pattern</span> <span class="o">=</span> <span class="n">seq_pattern</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_placeholder_dict</span> <span class="o">=</span> <span class="n">placeholder_dict</span>
+        <span class="n">regex_pattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode_pattern</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">regex_pattern</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">SeqRegexObject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SeqRegex.finditer"><a class="viewcode-back" href="../../seq_re.html#seq_re.seq_re_main.SeqRegex.finditer">[docs]</a>    <span class="k">def</span> <span class="nf">finditer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq_pattern</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an iterator yielding SeqMatchObject instances</span>
+<span class="sd">        over all non-overlapping matches for the SEQ RE pattern in n-dimension sequence.</span>
+
+<span class="sd">        The matched group can be acquired by the group_list or named_group_dict</span>
+<span class="sd">        of SeqMatchObject returned.</span>
+
+<span class="sd">        :param seq_pattern: A string of SEQ RE pattern</span>
+<span class="sd">        :param nd_sequence: An N-dimensional Sequence</span>
+<span class="sd">        :return: An iterator which generates a SeqMatchObject Instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">seq_pattern</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seq_pattern</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">seq_pattern</span><span class="p">)</span>
+
+        <span class="n">text_line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode_sequence</span><span class="p">(</span><span class="n">nd_sequence</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">text_line</span><span class="p">):</span>
+            <span class="n">match_object</span> <span class="o">=</span> <span class="n">SeqRegex</span><span class="o">.</span><span class="n">SeqMatchObject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="c1"># The entire match (group_index = 0) and Parenthesized subgroups</span>
+            <span class="k">for</span> <span class="n">group_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">group_index</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="n">group_index</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span>
+                <span class="n">match_object</span><span class="o">.</span><span class="n">group_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">group_index</span><span class="p">,</span>
+                                                <span class="n">nd_sequence</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">],</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span>
+            <span class="c1"># Named subgroups</span>
+            <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">group_index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_regex</span><span class="o">.</span><span class="n">groupindex</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">group_index</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="n">group_index</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ndim</span>
+                <span class="c1"># group_index is needed to sort the named groups in order</span>
+                <span class="n">match_object</span><span class="o">.</span><span class="n">named_group_dict</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">group_index</span><span class="p">,</span>
+                                                             <span class="n">nd_sequence</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">],</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">match_object</span></div>
+
+<div class="viewcode-block" id="SeqRegex.search"><a class="viewcode-back" href="../../seq_re.html#seq_re.seq_re_main.SeqRegex.search">[docs]</a>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq_pattern</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scan through n-dimension sequence looking for</span>
+<span class="sd">        the first location where the SEQ RE pattern produces a match,</span>
+<span class="sd">        and return a corresponding SeqMatchObject instance.</span>
+
+<span class="sd">        :param seq_pattern: A string of SEQ RE pattern</span>
+<span class="sd">        :param nd_sequence: An N-dimensional Sequence</span>
+<span class="sd">        :return: A SeqMatchObject Instance if match else None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">seq_pattern</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SeqRegex.findall"><a class="viewcode-back" href="../../seq_re.html#seq_re.seq_re_main.SeqRegex.findall">[docs]</a>    <span class="k">def</span> <span class="nf">findall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq_pattern</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Similar to the finditer() function.</span>
+
+<span class="sd">        :param seq_pattern: A string of SEQ RE pattern</span>
+<span class="sd">        :param nd_sequence: An N-dimensional Sequence</span>
+<span class="sd">        :return: A list of SeqMatchObject Instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">seq_pattern</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">)]</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SEQ RE 0.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, GE Ning.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.5.
+    </div>
+  </body>
+</html>

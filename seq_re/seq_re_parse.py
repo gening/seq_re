@@ -4,15 +4,15 @@
 Parse the syntax of sequence regular express pattern
 ====================================================
 
-Parse the original string of seq_re pattern into an queue of parsed parts, 
+Parse the original string of seq_re pattern into an queue of parsed parts,
 and translate the syntax of each part into its equivalent of the ordinary regular expression.
 
 """
 
 __author__ = "GE Ning <https://github.com/gening/seq_regex>"
 __copyright__ = "Copyright (C) 2017 GE Ning"
-__license__ = "Apache License 2.0"
-__version__ = "0.1.4"
+__license__ = "LGPL-3.0"
+__version__ = "1.2"
 
 # todo: deal with multi-value elements in the sequence
 # todo: assign an default name uniquely for group
@@ -117,13 +117,13 @@ class SeqRegexParser(object):
     @classmethod
     def _parse_indices(cls, indices_string):
         """Parse the format string.
-        
+
         :param indices_string: indices_string: `0,2:4`
         :return: return index_range_list = [(group_index_begin, group_index_end), ...]
         """
-        index_range_list = indices_string.split(u',')
+        index_range_list = indices_string.split(',')
         for ix, indices in enumerate(index_range_list):
-            index_list = indices.split(u':')
+            index_list = indices.split(':')
             if len(index_list) == 1:
                 index = int(index_list[0].strip())
                 index_range_list[ix] = (index, index + 1)
@@ -139,18 +139,18 @@ class SeqRegexParser(object):
         # `name@` =>name, [(0, ndim)]
         # `name@format_string` => name, [(group_index_begin, group_index_end), ...]
         # `name@@` => name, None
-        
+
         :param identifier_string: name, name@indices_string, name@@
         :return: ('group_name', [(group_index_begin, group_index_end), ...])
         """
         source = self._pattern_tokenized
-        name = u''
+        name = ''
         format_indices = []
-        items = identifier_string.split(u'@')
+        items = identifier_string.split('@')
         if len(items) > 0:
             name = items[0]
-            if name == u'':
-                raise source.error(u'missing group name', len(identifier_string) + 1)
+            if name == '':
+                raise source.error('missing group name', len(identifier_string) + 1)
         # A
         if len(items) == 1:
             format_indices.append((0, self._ndim))
@@ -158,28 +158,28 @@ class SeqRegexParser(object):
         # A@B => ['A', 'B']
         elif len(items) == 2:
             format_string = items[1]
-            if format_string == u'':
+            if format_string == '':
                 format_indices.append((0, self._ndim))
-            elif format_string != u'':
+            elif format_string != '':
                 try:
                     format_indices = self._parse_indices(format_string)
                 except ValueError:
-                    raise source.error(u'invalid format indices `%s`' % format_string,
+                    raise source.error('invalid format indices `%s`' % format_string,
                                        len(format_string) + 1)
         # A@@ => ['A', '', '']
-        elif len(items) == 3 and items[1] == u'' and items[2] == u'':
+        elif len(items) == 3 and items[1] == '' and items[2] == '':
             format_indices = None
         # A@B@C => ['A', 'B', 'C']
         else:
-            format_string = u'@'.join(items[1:])
-            raise source.error(u'invalid format indices `%s`' % format_string,
+            format_string = '@'.join(items[1:])
+            raise source.error('invalid format indices `%s`' % format_string,
                                len(format_string) + 1)
         return name, format_indices
 
     def _parse_placeholder(self, placeholder_name):
-        """Parse placeholder name in the pattern string, 
+        """Parse placeholder name in the pattern string,
         and substitute it by a set of placeholder values through looking up placeholder_dict
-        
+
         :param placeholder_name: string
         :return: [substitutions of str type]
         """
@@ -203,7 +203,7 @@ class SeqRegexParser(object):
         # `\^`    ==>  ok
         #  `^`   <==>  `^|`     ==> error
         # given that A and B are the values of the same one element.
-        
+
         :param negative_flag: The position of negative sign related
         :param element_set: [([char1, char2, ...], pos), ...]
         :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]
@@ -221,7 +221,7 @@ class SeqRegexParser(object):
         # replaced by ["p11""p12""p2"]
         elements = []
         for value_chars, source_pos in element_set:
-            value_str = u''.join(value_chars)  # value_chars = [a1, a2, ...]
+            value_str = ''.join(value_chars)  # value_chars = [a1, a2, ...]
             if value_str in self._placeholder_dict:
                 for v in self._parse_placeholder(value_str):
                     elements.append([v, None])
@@ -231,22 +231,22 @@ class SeqRegexParser(object):
         if len(elements) == 0:
             # nothing to be negatived
             if negatived:
-                raise source.error(u'unexpected negative sign `^`', source.pos - negative_flag)
+                raise source.error('unexpected negative sign `^`', source.pos - negative_flag)
             # `.`
             else:
-                parsed.append([Flags.EXP, u'.', source.pos - 1])
+                parsed.append([Flags.EXP, '.', source.pos - 1])
         elif not negatived and len(elements) == 1:
             # `A`
             value_str, source_pos = elements[0]
             parsed.append([Flags.LITERAL, value_str, source_pos])
         else:
             # `[AB]` `[^A]` `[^AB]`
-            parsed.append([Flags.SET_START, u'[', None])
+            parsed.append([Flags.SET_START, '[', None])
             if negatived:
-                parsed.append([Flags.SET_NEG, u'^', negative_flag])
+                parsed.append([Flags.SET_NEG, '^', negative_flag])
             for value_str, source_pos in elements:
                 parsed.append([Flags.LITERAL, value_str, source_pos])
-            parsed.append([Flags.SET_END, u']', None])
+            parsed.append([Flags.SET_END, ']', None])
 
         # clear element_set
         element_set[:] = []
@@ -271,7 +271,7 @@ class SeqRegexParser(object):
         # => add an element value to set
         # when `^`
         # => negative all elements if it's the first
-        
+
         :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]
         """
         source = self._pattern_tokenized
@@ -281,14 +281,14 @@ class SeqRegexParser(object):
         negative_flag = -1
         # open the `/`
         start_pos = source.pos - 1
-        parsed.append([Flags.TUPLE_START, u'(?:', start_pos])
+        parsed.append([Flags.TUPLE_START, '(?:', start_pos])
         while True:
             this = source.next
             this_pos = source.pos
             if this is None:
                 # unexpected end of tuple pattern
-                raise source.error(u'unbalanced slash `/`', source.pos - start_pos)
-            if this in u'/':  # terminator = u'/'
+                raise source.error('unbalanced slash `/`', source.pos - start_pos)
+            if this in '/':  # terminator = '/'
                 if negative_flag >= 0 or len(element_list) > 0:
                     self._parse_element(negative_flag, element_list)
                     # negative_flag = -1
@@ -299,38 +299,38 @@ class SeqRegexParser(object):
                 # 0 1  2   3
                 dim_vacancy = self._ndim - dim_index
                 if dim_vacancy > 0:
-                    parsed.append([Flags.EXP, u'.' * dim_vacancy, None])
+                    parsed.append([Flags.EXP, '.' * dim_vacancy, None])
                 break  # end of tuple pattern
             source.get()
 
-            if this == u':':
-                # if terminator !=u'/':
-                #     raise source.error(u'invalid `:` out inside `/.../`', 1)
+            if this == ':':
+                # if terminator !='/':
+                #     raise source.error('invalid `:` out inside `/.../`', 1)
                 # parse the element
                 self._parse_element(negative_flag, element_list)
                 negative_flag = -1
                 # move dim_index forwards
                 dim_index += 1
                 if dim_index >= self._ndim:
-                    raise source.error(u'out of dimension range')
-            elif this == u'|':
-                if source.next not in u'|:/':
+                    raise source.error('out of dimension range')
+            elif this == '|':
+                if source.next not in '|:/':
                     # nothing to be alternated previously
                     # if len(element_list) == 0:
-                    #    ignore raising source.error(u'unexpected alternate sign `|`')
+                    #    ignore raising source.error('unexpected alternate sign `|`')
                     # new value of the element
                     element_list.append(([], this_pos + 1))
-            elif this == u'^' and len(element_list) == 0 and negative_flag < 0:
+            elif this == '^' and len(element_list) == 0 and negative_flag < 0:
                 # `^` has no special meaning if it’s not the first character in the set.
                 # negatived = True
                 negative_flag = this_pos
             else:
                 if len(element_list) == 0:
                     element_list.append(([], this_pos))
-                if this[0] == u'\\':
-                    if this[1] in u'/:|\\':
+                if this[0] == '\\':
+                    if this[1] in '/:|\\':
                         element_list[-1][0].append(this[1])
-                    elif this[1] == u'^' and len(element_list[0][0]) == 0:
+                    elif this[1] == '^' and len(element_list[0][0]) == 0:
                         # so only if it's the first character, `^` can be escaped.
                         element_list[-1][0].append(this[1])
                     else:
@@ -338,11 +338,11 @@ class SeqRegexParser(object):
                 else:
                     element_list[-1][0].append(this)
         # close the `/`
-        parsed.append([Flags.TUPLE_END, u')', source.pos])
+        parsed.append([Flags.TUPLE_END, ')', source.pos])
         return
 
     def _parse_group(self):
-        """Parse the group pattern inside the parentheses 
+        """Parse the group pattern inside the parentheses
         which is delimited by `(...)` including the delimited `(` and `)`:
         # => separate the group extension prefix:
         #   `(?:...)`
@@ -358,7 +358,7 @@ class SeqRegexParser(object):
         # => separate the format indices of a named group from its name: `<name@0,2:4>`
         # => only `(pattern)` and `(?P<name>pattern)` will be counted as capturing groups,
         #    and assigned the group index.
-        
+
         :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]
         """
         source = self._pattern_tokenized
@@ -366,75 +366,75 @@ class SeqRegexParser(object):
         group = False  # capturing group flag
         # open group
         start_pos = source.pos - 1
-        parsed.append([Flags.EXT_START, u'(', start_pos])
+        parsed.append([Flags.EXT_START, '(', start_pos])
         # group content
-        if source.match(u'?'):
+        if source.match('?'):
             # this is an extension notation
             char = source.get()
             if char is None:
-                raise source.error(u'unexpected end of pattern')
-            elif char == u':':
+                raise source.error('unexpected end of pattern')
+            elif char == ':':
                 group = False
                 # non-capturing group
-                parsed.append([Flags.EXT_SIGN, u'?:', source.pos - 2])
-            elif char == u'P':
-                if source.match(u'<'):
+                parsed.append([Flags.EXT_SIGN, '?:', source.pos - 2])
+            elif char == 'P':
+                if source.match('<'):
                     group = True
                     parsed[-1][0] = Flags.GROUP_START
-                    parsed.append([Flags.EXT_SIGN, u'?P<', source.pos - 3])
+                    parsed.append([Flags.EXT_SIGN, '?P<', source.pos - 3])
                     # named group: skip forward to end of name and format
-                    identifier = source.get_until(u'>')  # terminator will be consumed silently
+                    identifier = source.get_until('>')  # terminator will be consumed silently
                     name, format_indices = self._parse_group_identifier(identifier)
                     self.named_group_format_indices[name] = format_indices
                     parsed.append([Flags.GROUP_NAME, name, source.pos - len(identifier) - 1])
-                    parsed.append([Flags.EX, u'>', source.pos - 1])
-                elif source.match(u'='):
-                    parsed.append([Flags.EXT_SIGN, u'?P=', source.pos - 3])
+                    parsed.append([Flags.EX, '>', source.pos - 1])
+                elif source.match('='):
+                    parsed.append([Flags.EXT_SIGN, '?P=', source.pos - 3])
                     # named back reference
-                    name = source.get_until(u')', skip=False)  # terminator will be not consumed
+                    name = source.get_until(')', skip=False)  # terminator will be not consumed
                     parsed.append([Flags.EX, name, source.pos - len(name)])
                     # close the group
-                    parsed.append([Flags.EXT_END, u')', source.pos])
+                    parsed.append([Flags.EXT_END, ')', source.pos])
                     # not contain any pattern
                     return
-            elif char == u'#':
+            elif char == '#':
                 # group = False
                 parsed.pop(-1)  # pop the start of group
                 # comment group ignores everything including `/.../`
-                # source.get_until(u')', skip=False)  # terminator will be not consumed
+                # source.get_until(')', skip=False)  # terminator will be not consumed
                 while True:
                     if source.next is None:
                         raise source.error("missing `)`, unterminated comment",
                                            source.pos - start_pos)
-                    if source.match(u')', skip=False):
+                    if source.match(')', skip=False):
                         break
                     else:
                         source.get()
                 # not contain any pattern
                 return
-            elif char in u'=!<':
+            elif char in '=!<':
                 group = False
                 # lookahead assertions
-                if char == u'<':
+                if char == '<':
                     char = source.get()
                     if char is None:
-                        raise source.error(u'unexpected end of pattern')
-                    if char not in u'=!':
-                        raise source.error(u'unknown extension `?<%s`' % char, len(char) + 2)
+                        raise source.error('unexpected end of pattern')
+                    if char not in '=!':
+                        raise source.error('unknown extension `?<%s`' % char, len(char) + 2)
                     else:
-                        char = u'<' + char
-                char = u'?' + char
+                        char = '<' + char
+                char = '?' + char
                 parsed.append([Flags.EXT_SIGN, char, source.pos - len(char)])
-            elif char == u'(':
+            elif char == '(':
                 group = False
-                parsed.append([Flags.EXT_SIGN, u'?(', source.pos - 2])
+                parsed.append([Flags.EXT_SIGN, '?(', source.pos - 2])
                 # conditional back reference group
-                cond_name = source.get_until(u')')  # terminator will be consumed silently
+                cond_name = source.get_until(')')  # terminator will be consumed silently
                 parsed.append([Flags.EX, cond_name, source.pos - len(cond_name) - 1])
-                parsed.append([Flags.EX, u')', source.pos - 1])
+                parsed.append([Flags.EX, ')', source.pos - 1])
             else:
-                raise source.error(u'unknown extension `?%s`' % char, len(char) + 1)
-                # parsed.append([Flags.EX, u'?' + char, source.pos - 2])
+                raise source.error('unknown extension `?%s`' % char, len(char) + 1)
+                # parsed.append([Flags.EX, '?' + char, source.pos - 2])
                 # pass
         else:
             # without extension notation as an unnamed group
@@ -453,7 +453,7 @@ class SeqRegexParser(object):
         if parsed[-1][0] == start_flag:
             parsed.pop(-1)
         else:
-            parsed.append([end_flag, u')', source.pos])
+            parsed.append([end_flag, ')', source.pos])
         return
 
     def _parse_sub(self):
@@ -464,7 +464,7 @@ class SeqRegexParser(object):
         # => count continuous dots separately,
         #    not replace regex pattern '.\+' => '(?:' + '.' * ndim + ')'
         # => deal with delimiter: `(group pattern)`, `/tuple pattern/`
-        
+
         :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]
         """
         source = self._pattern_tokenized
@@ -475,30 +475,30 @@ class SeqRegexParser(object):
             this_pos = source.pos
             if this is None:
                 break  # end of pattern
-            if this == u')':
+            if this == ')':
                 break  # end of group pattern
             # move index of the source forward
             source.get()
 
-            if this == u'.':
-                parsed.append([Flags.EXP, u'(?:' + u'.' * self._ndim + u')', this_pos])
-            elif this == u'(':
+            if this == '.':
+                parsed.append([Flags.EXP, '(?:' + '.' * self._ndim + ')', this_pos])
+            elif this == '(':
                 # parse the whole group content `...` without consuming `(` and `)`
                 self._parse_group()
-                if not source.match(u')'):
+                if not source.match(')'):
                     # unexpected end of group pattern
-                    raise source.error(u'unbalanced parenthesis `(`', source.pos - this_pos)
-            elif this == u'/':
+                    raise source.error('unbalanced parenthesis `(`', source.pos - this_pos)
+            elif this == '/':
                 # parse the tuple whole content `...` without consuming `(` and `)`
                 self._parse_tuple()
-                if not source.match(u'/'):
+                if not source.match('/'):
                     # unexpected end of group pattern
-                    raise source.error(u'unbalanced slash `/`', source.pos - this_pos)
-            elif this[0] == u'\\':
-                raise source.error(u'invalid escape expression `\\`', len(this))
-            elif this in u'[]':
-                raise source.error(u'invalid set indicator `%s`' % this, 1)
-            elif this in u'*+?{,}' or this in u'0123456789' or this in u'^$' or this in u'|':
+                    raise source.error('unbalanced slash `/`', source.pos - this_pos)
+            elif this[0] == '\\':
+                raise source.error('invalid escape expression `\\`', len(this))
+            elif this in '[]':
+                raise source.error('invalid set indicator `%s`' % this, 1)
+            elif this in '*+?{,}' or this in '0123456789' or this in '^$' or this in '|':
                 # repeat with digital
                 # at beginning or end
                 # branch
@@ -508,7 +508,7 @@ class SeqRegexParser(object):
                 pass
             # omit non-special chars
             else:
-                raise source.error(u'unsupported syntax char `%s`' % this, 1)
+                raise source.error('unsupported syntax char `%s`' % this, 1)
                 # otherwise:
                 # deal with non-special chars as tuple
                 # parse the tuple in which `:` is not accepted
@@ -520,7 +520,7 @@ class SeqRegexParser(object):
     def _parse_seq(self):
         """Parse the whole pattern `...`.
         For the pattern `...)...`, parser will be stopped at `)` and an error will be raised.
-        
+
         :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]
         """
         source = self._pattern_tokenized
@@ -530,43 +530,43 @@ class SeqRegexParser(object):
         # parsing exit before end of pattern
         if source.next is not None:
             # unexpected end of pattern
-            assert source.next == u')'
-            raise source.error(u'unbalanced parenthesis `)`')
+            assert source.next == ')'
+            raise source.error('unbalanced parenthesis `)`')
         return parsed
 
     def parse(self, ndim, pattern_str, **placeholder_dict):
-        """The main entry of functions.  
-        
-        Parse the pattern by translating its syntax into the equivalent in regular expression 
+        """The main entry of functions.
+
+        Parse the pattern by translating its syntax into the equivalent in regular expression
         and return a pattern stack for future encode.
-        
+
         :param ndim: The number of dimensions
         :param pattern_str: The string of original pattern
         :param placeholder_dict: The substitutions of placeholders in the pattern
-        :return: parsed = [(Flag, parsed_pattern, begin_pos), ...] 
+        :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]
         """
         self._set(ndim, pattern_str, placeholder_dict)
         parsed = self._parse_seq()
         return parsed
 
     def dump(self):
-        """Transform self._pattern_stack into pseudo regular expression string 
+        """Transform self._pattern_stack into pseudo regular expression string
         for debugging or testing.
-        
+
         :return: A string of parsed pattern similar to the ordinary RE
         """
         dump_stack = []
         if self._pattern_stack:
             for flag, string, pos in self._pattern_stack:
                 if flag == Flags.LITERAL:
-                    dump_stack.append(u'"%s"' % string)
+                    dump_stack.append('"%s"' % string)
                 elif string is not None:
                     dump_stack.append(string)
-        return u''.join(dump_stack)
+        return ''.join(dump_stack)
 
     def get_pattern_by_name(self, group_name):
         """Get original pattern string determined by group name.
-        
+
         :param group_name: The group name
         :return: The substring of original pattern
         """
@@ -594,7 +594,7 @@ class SeqRegexParser(object):
 
     def get_pattern_by_id(self, group_index):
         """Get original pattern string determined by group index.
-        
+
         :param group_index: The index of group
         :return: The substring of original pattern
         """
@@ -631,7 +631,7 @@ class SeqRegexParser(object):
 
     def get_positive_literal_sets(self):
         """Get literals grouped by sets which do not have negative sign.
-        
+
         :return: literal_set_list = ['str', ['str', 'str'], ....]
         """
         # sets come after ?! ?<! => - - = + , - + = -
@@ -642,7 +642,7 @@ class SeqRegexParser(object):
 
         for flag, string, _ in self._pattern_stack:
             if flag == Flags.EXT_START:
-                if string in [u'?!', u'?<!']:
+                if string in ['?!', '?<!']:
                     positive = False
             elif flag == Flags.SET_START:
                 in_set = True
@@ -654,7 +654,7 @@ class SeqRegexParser(object):
                     if in_set:
                         literal_set_list[-1].add(string)
                     else:
-                        literal_set_list.append({string})  # a set
+                        literal_set_list.append(set([string]))  # a set
             elif flag == Flags.SET_END:
                 if len(literal_set_list[-1]) == 0:
                     literal_set_list.pop(-1)
@@ -689,7 +689,7 @@ class Tokenizer(object):
             try:
                 c = self.string[self.index + 1]
             except IndexError:
-                raise self.error(u'bad escape in end')
+                raise self.error('bad escape in end')
             char += c
         self.index += len(char)
         self.next = char
@@ -707,7 +707,7 @@ class Tokenizer(object):
         return this
 
     def get_while(self, n, charset):
-        result = u''
+        result = ''
         for _ in range(n):
             c = self.next
             if c not in charset:
@@ -723,12 +723,12 @@ class Tokenizer(object):
             self.__next()
             if c is None:
                 if not result:
-                    raise self.error(u'missing characters')
-                raise self.error(u'missing `%s`, unterminated characters' % terminator,
+                    raise self.error('missing characters')
+                raise self.error('missing `%s`, unterminated characters' % terminator,
                                  len(result))
             if c == terminator:
                 if not result:
-                    raise self.error(u'missing character', 1)
+                    raise self.error('missing character', 1)
                 if not skip:
                     self.seek(self.index - 2)
                 break
@@ -740,7 +740,7 @@ class Tokenizer(object):
         return self.tell()
 
     def tell(self):
-        return self.index - len(self.next or u'')
+        return self.index - len(self.next or '')
 
     def seek(self, index):
         self.index = index
@@ -749,5 +749,5 @@ class Tokenizer(object):
     def error(self, msg, offset=0):
         position = self.tell() - offset
         # highlight the position of error
-        return ValueError(u'%s at position %d\n%s\n%s' %
-                          (msg, position, self.string, u'.' * position + u'^'))
+        return ValueError('%s at position %d\n%s\n%s' %
+                          (msg, position, self.string, '.' * position + '^'))
