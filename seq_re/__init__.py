@@ -68,7 +68,7 @@ in which the delimiters ``/.../`` is to indicate a tuple of n dimensions.
   Characters other than ``/``, ``:`` or ``\`` lose their special meaning inside ``／...／``.
   To express ``/``, ``:`` or ``|`` in literal, ``\`` should be added before ``/``, ``:`` or ``|``.
   Meanwhile, to represent a literal backslash ``\`` before ``/``, ``:`` or ``|``,
-  ``\\`` should be used in the plain text
+  ``\\\\`` should be used in the plain text
   that is to say ``'\\\\\\\\'`` must be used in the python code.
 
 1.2 Outside ``/.../``
@@ -126,7 +126,7 @@ Given a 3-D sequence ``[[s1, s2, s3], ... ]``,
   Its behavior looks like the ordinary RE pattern ``(?:.[^P].)``.
 
   We can also use a negative lookahead assertion of ordinary RE,
-  to give a negative covered the following.
+  to give a negative covering its following.
   e.g. ``(?!/:P://Q/)/:://::/`` <==> ``/:^P://^Q::/``,
   which behavior looks like the ordinary RE pattern ``(?!(?:.P.))...``.
 

@@ -66,7 +66,7 @@ in which the delimiters ``/.../`` is to indicate a tuple of n dimensions.
   To express ``/``, ``:`` or ``|`` in literal, ``\`` should be added before ``/``, ``:`` or ``|``.
   Meanwhile, to represent a literal backslash ``\`` before ``/``, ``:`` or ``|``,
   ``\\`` should be used in the plain text
-  that is to say ``\`` x 4 must be used in the python code.
+  that is to say ``'\\\\'`` must be used in the python code.
 
 1.2 Outside ``/.../``
 +++++++++++++++++++++
@@ -75,14 +75,14 @@ in which the delimiters ``/.../`` is to indicate a tuple of n dimensions.
   but with the limitations discussed below.
 
   1. ***Not*** support the following escaped special characters:
-     ``\\number``, ``\\A``, ``\\b``, ``\\B``, ``\\d``, ``\\D``, ``\\s``, ``\\S``,
-     ``\\w``, ``\\W``, ``\\Z``, ``\\a``, ``\\b``, ``\\f``, ``\\n``, ``\\r``, ``\\t``, ``\\v``,
-     ``\\x``.
+     ``\number``, ``\A``, ``\b``, ``\B``, ``\d``, ``\D``, ``\s``, ``\S``,
+     ``\w``, ``\W``, ``\Z``, ``\a``, ``\b``, ``\f``, ``\n``, ``\r``, ``\t``, ``\v``,
+     ``\x``.
 
   2. ***Not*** support ``[`` and ``]`` as special characters to indicate a set of characters.
 
   3. ***Not*** support ranges of characters,
-     such as ``[0-9A-Za-z]``, ``[\\u4E00-\\u9FBB\\u3007]`` (Unihan and Chinese character ``〇``)
+     such as ``[0-9A-Za-z]``, ``[\u4E00-\u9FBB\u3007]`` (Unihan and Chinese character ``〇``)
      used in ordinary RE.
 
   4. The whitespace and non-special characters are ignored.
@@ -123,7 +123,7 @@ Given a 3-D sequence ``[[s1, s2, s3], ... ]``,
   Its behavior looks like the ordinary RE pattern ``(?:.[^P].)``.
 
   We can also use a negative lookahead assertion of ordinary RE,
-  to give a negative covered the following.
+  to give a negative covering its following.
   e.g. ``(?!/:P://Q/)/:://::/`` <==> ``/:^P://^Q::/``,
   which behavior looks like the ordinary RE pattern ``(?!(?:.P.))...``.
 
