@@ -9,8 +9,8 @@
 012(456	unbalanced parenthesis `(` at position 3
 012)456	unbalanced parenthesis `)` at position 3
 012\456	invalid escape expression `\` at position 3
-012345[	invalid set indicator `[` at position 6
-]123456	invalid set indicator `]` at position 0
+012345[	unbalanced square bracket `[` at position 6
+]123456	unbalanced square bracket `]` at position 0
 
 # test _parse_group
 ## group
@@ -67,66 +67,67 @@
 
 # _parse_tuple
 ## closed tuple
-0/2:4:6/8	0(?:"2""4""6")8
-0(/34:6:8/)0	0((?:"34""6""8"))0
-0(?P<56>/90:23:56/)90	0(?P<56>(?:"90""23""56"))90
-/1:3:5:7/	out of dimension range at position 7
-/1:3:5:/	out of dimension range at position 7
-/1:3:5/	(?:"1""3""5")
-/1:3:/	(?:"1""3".)
-/:2:4/	(?:."2""4")
-/:2:/	(?:."2".)
-/::3/	(?:.."3")
-/1::/	(?:"1"..)
-/:2/	(?:."2".)
-/1:/	(?:"1"..)
-/1/	(?:"1"..)
+0[2;4;6]8	0(?:"2""4""6")8
+0([34;6;8])0	0((?:"34""6""8"))0
+0(?P<56>[90;23;56])90	0(?P<56>(?:"90""23""56"))90
+[1;3;5;7]	out of the tuple length range at position 7
+[1;3;5;]	out of the tuple length range at position 7
+[1;3;5]	(?:"1""3""5")
+[1;3;]	(?:"1""3".)
+[;2;4]	(?:."2""4")
+[;2;]	(?:."2".)
+[;;3]	(?:.."3")
+[1;;]	(?:"1"..)
+[;2]	(?:."2".)
+[1;]	(?:"1"..)
+[1]	(?:"1"..)
 .123	(?:...)123
-//	(?:...)
-/:/	(?:...)
-/::/	(?:...)
-/\:\/\|\\/0	(?:":/|\"..)0
-/\:\/\|\\9/1	(?:":/|\9"..)1
-/\:\/\|\8/0	(?:":/|\8"..)0
-/.()[]*+?/	(?:".()[]*+?"..)
+[]	(?:...)
+[;]	(?:...)
+[;;]	(?:...)
+[\;\]\|\\]0	(?:";]|\"..)0
+[\;\]\|\\9]1	(?:";]|\9"..)1
+[\;\]\|\8]0	(?:";]|\8"..)0
+[.()[/*+?]	(?:".()[/*+?"..)
 
 ## unclosed tuple
-0(?P<56>/90:23:56)90	unbalanced slash `/` at position 8
-/1:3:5:7	out of dimension range at position 7
-/1:3:5:	out of dimension range at position 7
-/1:3:5	unbalanced slash `/` at position 0
-/1:3:	unbalanced slash `/` at position 0
-/:2:4	unbalanced slash `/` at position 0
-/:2:	unbalanced slash `/` at position 0
-/::3	unbalanced slash `/` at position 0
-/1::	unbalanced slash `/` at position 0
-/1	unbalanced slash `/` at position 0
-/	unbalanced slash `/` at position 0
-/:	unbalanced slash `/` at position 0
+0(?P<56>[90;23;56)90	unbalanced square bracket `[` at position 8
+[1;3;5;7	out of the tuple length range at position 7
+[1;3;5;	out of the tuple length range at position 7
+[1;3;5	unbalanced square bracket `[` at position 0
+[1;3;	unbalanced square bracket `[` at position 0
+[;2;4	unbalanced square bracket `[` at position 0
+[;2;	unbalanced square bracket `[` at position 0
+[;;3	unbalanced square bracket `[` at position 0
+[1;;	unbalanced square bracket `[` at position 0
+[1	unbalanced square bracket `[` at position 0
+[	unbalanced square bracket `[` at position 0
+]	unbalanced square bracket `]` at position 0
+[;	unbalanced square bracket `[` at position 0
 
 # test _parse_element with boolean logic
-/1|3/	(?:["1""3"]..)
-/1|/	(?:"1"..)
-/|2/	(?:"2"..)
-/|/	(?:...)
-/^2|4^:7^9:^2/	(?:[^"2""4^"]"7^9"[^"2"])
-/^2/	(?:[^"2"]..)
-/^2|/	(?:[^"2"]..)
-/^|3/	(?:[^"3"]..)
-/^|/	unexpected negative sign `^` at position 1
-/^/	unexpected negative sign `^` at position 1
-/1:\^:6/	(?:"1""^""6")
+[1|3]	(?:["1""3"]..)
+[1|]	(?:"1"..)
+[|2]	(?:"2"..)
+[|]	(?:...)
+[^2|4^;7^9;^2]	(?:[^"2""4^"]"7^9"[^"2"])
+[^2]	(?:[^"2"]..)
+[^2|]	(?:[^"2"]..)
+[^|3]	(?:[^"3"]..)
+[^|]	unexpected negative sign `^` at position 1
+[^]	unexpected negative sign `^` at position 1
+[1;\^;6]	(?:"1""^""6")
 
 # test arbitrary
 
-(/::PERSON/ +) /was|is/ /an/?.{0, 5} /painter|drawing artist/ 	((?:.."PERSON")+)(?:["was""is"]..)(?:"an"..)?(?:...){0,5}(?:["painter""drawing artist"]..)
+([;;PERSON] +) [was|is] [an]?.{0, 5} [painter|drawing artist] 	((?:.."PERSON")+)(?:["was""is"]..)(?:"an"..)?(?:...){0,5}(?:["painter""drawing artist"]..)
 
-( /::PERSON/). /:verb_be/... /born/ /on/ (/::DATE/)..	((?:.."PERSON"))(?:...)(?:."verb_be".)(?:...)(?:...)(?:...)(?:"born"..)(?:"on"..)((?:.."DATE"))(?:...)(?:...)
+( [;;PERSON]). [;verb_be]... [born] [on] ([;;DATE])..	((?:.."PERSON"))(?:...)(?:."verb_be".)(?:...)(?:...)(?:...)(?:"born"..)(?:"on"..)((?:.."DATE"))(?:...)(?:...)
 
-( /::CONCEPT/).{0, 5} /:^|包括|^|涉\及|\/\:\|/.{0, 5} /::PRODUCT|CONCEPT/	((?:.."CONCEPT"))(?:...){0,5}(?:.[^"包括""^""涉\及""/:|"].)(?:...){0,5}(?:..["PRODUCT""CONCEPT"])
+( [;;CONCEPT]).{0, 5} [;^|包括|^|涉\及|\]\;\|].{0, 5} [;;PRODUCT|CONCEPT]	((?:.."CONCEPT"))(?:...){0,5}(?:.[^"包括""^""涉\及""];|"].)(?:...){0,5}(?:..["PRODUCT""CONCEPT"])
 
-(( /::CONCEPT/).{0, 5}( /:verb:/ )).{0, 5} /::PRODUCT/	(((?:.."CONCEPT"))(?:...){0,5}((?:."verb".)))(?:...){0,5}(?:.."PRODUCT")
+(( [;;CONCEPT]).{0, 5}( [;verb;] )).{0, 5} [;;PRODUCT]	(((?:.."CONCEPT"))(?:...){0,5}((?:."verb".)))(?:...){0,5}(?:.."PRODUCT")
 
-(/:number:/ +) ( /\./ ) ( /:number:/ +)	((?:."number".)+)((?:"\."..))((?:."number".)+)
+([;number;] +) ( [\.] ) ( [;number;] +)	((?:."number".)+)((?:"\."..))((?:."number".)+)
 
-///::\|//:|://:abc|//:abc://::^abc|//:abc^|://::^a//::^abc//\^//\.//./	(?:...)(?:.."|")(?:...)(?:."abc".)(?:."abc".)(?:..[^"abc"])(?:."abc^".)(?:..[^"a"])(?:..[^"abc"])(?:"^"..)(?:"\."..)(?:"."..)
+[][;;\|][;|;][;abc|][;abc;][;;^abc|][;abc^|;][;;^a][;;^abc][\^][\.][.]	(?:...)(?:.."|")(?:...)(?:."abc".)(?:."abc".)(?:..[^"abc"])(?:."abc^".)(?:..[^"a"])(?:..[^"abc"])(?:"^"..)(?:"\."..)(?:"."..)

@@ -54,7 +54,7 @@
 <span class="sd">Bootstrap sequence regular express pattern</span>
 <span class="sd">==========================================</span>
 
-<span class="sd">A trigger pattern and several groups of trigger phrases is given, </span>
+<span class="sd">A trigger pattern and several groups of trigger phrases is given,</span>
 <span class="sd">the function bootstrap() will generate the new patterns through many sequences.</span>
 
 <span class="sd">Examples</span>
@@ -63,24 +63,24 @@
 <span class="sd">For example, given that</span>
 
 <span class="sd">&gt;&gt;&gt; import seq_re</span>
-<span class="sd">&gt;&gt;&gt; trigger_pattern_ndim = 3</span>
-<span class="sd">&gt;&gt;&gt; trigger_pattern = (&#39;(?P&lt;com@1&gt;/company_name::company tag/) (?P&lt;x1@@&gt;.{0,5}) &#39;</span>
-<span class="sd">&gt;&gt;&gt;                    &#39;(?P&lt;v@0&gt;/:verb/) (?P&lt;x2@@&gt;.{0,5}) (?P&lt;pro@1&gt;/product_name::product tag/)&#39;</span>
+<span class="sd">&gt;&gt;&gt; len_tuple = 3</span>
+<span class="sd">&gt;&gt;&gt; trigger_pattern = (&#39;(?P&lt;com@1&gt;[company_name;;company tag]) (?P&lt;x1@@&gt;.{0,5}) &#39;</span>
+<span class="sd">&gt;&gt;&gt;                    &#39;(?P&lt;v@0&gt;[;verb]) (?P&lt;x2@@&gt;.{0,5}) (?P&lt;pro@1&gt;[product_name;;product tag])&#39;</span>
 <span class="sd">&gt;&gt;&gt;                   )</span>
 <span class="sd">&gt;&gt;&gt; trigger_dict_list = [{&#39;company_name&#39;: &#39;Apple&#39;, &#39;product_name&#39;: &#39;iPhone&#39;},</span>
 <span class="sd">&gt;&gt;&gt;                      {&#39;company_name&#39;: &#39;Apple&#39;,</span>
 <span class="sd">&gt;&gt;&gt;                       &#39;product_name&#39;: [&#39;iPhone 4&#39;, &#39;iPhone 6S plus&#39;]}</span>
 <span class="sd">&gt;&gt;&gt;                     ]</span>
 <span class="sd">&gt;&gt;&gt; list_of_sequence = [..., ..., ...]</span>
-<span class="sd">&gt;&gt;&gt; seq_re.bootstrap(trigger_pattern_ndim, trigger_pattern, trigger_dict_list, list_of_sequence)</span>
+<span class="sd">&gt;&gt;&gt; seq_re.bootstrap(len_tuple, trigger_pattern, trigger_dict_list, list_of_sequence)</span>
 
 <span class="sd">the patterns generated could be the following::</span>
-<span class="sd">    </span>
-<span class="sd">    /::company tag/.{0,5}/designs/.{0,5}/::product tag/</span>
-<span class="sd">    </span>
-<span class="sd">    /::company tag/.{0,5}/has released/.{0,5}/::product tag/</span>
 
-<span class="sd">The group in the trigger patterns, which needs to be presented in the generated patterns, </span>
+<span class="sd">    [;;company tag].{0,5}[designs].{0,5}[;;product tag]</span>
+
+<span class="sd">    [;;company tag].{0,5}[has released].{0,5}[;;product tag]</span>
+
+<span class="sd">The group in the trigger patterns, which needs to be presented in the generated patterns,</span>
 <span class="sd">should be given a format string starting with ``@`` after its group name.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
@@ -90,33 +90,33 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;GE Ning &lt;https://github.com/gening/seq_regex&gt;&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Copyright (C) 2017 GE Ning&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;LGPL-3.0&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.2&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span>
 
 <span class="kn">import</span> <span class="nn">seq_re_main</span>
 
 
-<span class="k">def</span> <span class="nf">_prepare</span><span class="p">(</span><span class="n">ndim</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">trigger_dict_list</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_prepare</span><span class="p">(</span><span class="n">len_tuple</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">trigger_dict_list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Initialize a list of SeqRegexObject.&quot;&quot;&quot;</span>
     <span class="n">seq_re_list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">trigger_dict</span> <span class="ow">in</span> <span class="n">trigger_dict_list</span><span class="p">:</span>
-        <span class="n">sr</span> <span class="o">=</span> <span class="n">seq_re_main</span><span class="o">.</span><span class="n">SeqRegex</span><span class="p">(</span><span class="n">ndim</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="o">**</span><span class="n">trigger_dict</span><span class="p">)</span>
+        <span class="n">sr</span> <span class="o">=</span> <span class="n">seq_re_main</span><span class="o">.</span><span class="n">SeqRegex</span><span class="p">(</span><span class="n">len_tuple</span><span class="p">)</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="o">**</span><span class="n">trigger_dict</span><span class="p">)</span>
         <span class="n">seq_re_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sr</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">seq_re_list</span>
 
 
-<span class="k">def</span> <span class="nf">_generate</span><span class="p">(</span><span class="n">seq_re_list</span><span class="p">,</span> <span class="n">nd_sequence</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Find matches in the sequence by the useful SeqRegexObject, </span>
+<span class="k">def</span> <span class="nf">_generate</span><span class="p">(</span><span class="n">seq_re_list</span><span class="p">,</span> <span class="n">sequence</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find matches in the sequence by the useful SeqRegexObject,</span>
 <span class="sd">    and generate the result pattern.&quot;&quot;&quot;</span>
     <span class="c1"># prune: no need to use the re module</span>
     <span class="n">seq_re_used_indices</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">seq_re_list</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">sr</span><span class="o">.</span><span class="n">is_useless_for</span><span class="p">(</span><span class="n">nd_sequence</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sr</span><span class="o">.</span><span class="n">is_useless_for</span><span class="p">(</span><span class="n">sequence</span><span class="p">):</span>
             <span class="n">seq_re_used_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
     <span class="c1"># match</span>
     <span class="k">for</span> <span class="n">sr_i</span> <span class="ow">in</span> <span class="n">seq_re_used_indices</span><span class="p">:</span>
         <span class="n">sr</span> <span class="o">=</span> <span class="n">seq_re_list</span><span class="p">[</span><span class="n">sr_i</span><span class="p">]</span>
         <span class="n">generated_pattern</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">matches</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">nd_sequence</span><span class="p">)</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
             <span class="c1"># group index is required here, not order by name</span>
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">named_group_dict</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">named_group_dict</span><span class="p">[</span><span class="n">g</span><span class="p">][</span><span class="mi">0</span><span class="p">]):</span>
@@ -124,20 +124,20 @@
             <span class="k">yield</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">generated_pattern</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="bootstrap"><a class="viewcode-back" href="../../seq_re_bootstrap.html#seq_re.seq_re_bootstrap.bootstrap">[docs]</a><span class="k">def</span> <span class="nf">bootstrap</span><span class="p">(</span><span class="n">ndim</span><span class="p">,</span> <span class="n">trigger_pattern</span><span class="p">,</span> <span class="n">trigger_dict_list</span><span class="p">,</span> <span class="n">sequence_iter</span><span class="p">):</span>
+<div class="viewcode-block" id="bootstrap"><a class="viewcode-back" href="../../seq_re.html#seq_re.bootstrap">[docs]</a><span class="k">def</span> <span class="nf">bootstrap</span><span class="p">(</span><span class="n">len_tuple</span><span class="p">,</span> <span class="n">trigger_pattern</span><span class="p">,</span> <span class="n">trigger_dict_list</span><span class="p">,</span> <span class="n">sequences_iter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Bootstrap sequence regular express pattern by the trigger pattern.</span>
-<span class="sd">    </span>
-<span class="sd">    :param ndim: The number of dimensions</span>
+
+<span class="sd">    :param len_tuple: The length of the tuple</span>
 <span class="sd">    :param trigger_pattern: The pattern string</span>
-<span class="sd">    :param trigger_dict_list: [{placeholder_name1: p1, placeholder_name2: p2}, ...] </span>
+<span class="sd">    :param trigger_dict_list: [{placeholder_name1: p1, placeholder_name2: p2}, ...]</span>
 <span class="sd">                              in which p1, p2 could be a str or a list of str.</span>
-<span class="sd">    :param sequence_iter: Yield one n-dimensional sequence by one</span>
+<span class="sd">    :param sequences_iter: Yield one 2-dimensional sequence by one</span>
 <span class="sd">    :return: [(pattern_generated, freq), ...]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">seq_re_list</span> <span class="o">=</span> <span class="n">_prepare</span><span class="p">(</span><span class="n">ndim</span><span class="p">,</span> <span class="n">trigger_pattern</span><span class="p">,</span> <span class="n">trigger_dict_list</span><span class="p">)</span>
+    <span class="n">seq_re_list</span> <span class="o">=</span> <span class="n">_prepare</span><span class="p">(</span><span class="n">len_tuple</span><span class="p">,</span> <span class="n">trigger_pattern</span><span class="p">,</span> <span class="n">trigger_dict_list</span><span class="p">)</span>
     <span class="n">counter</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
     <span class="c1"># many sequences</span>
-    <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">sequence_iter</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">seq</span> <span class="ow">in</span> <span class="n">sequences_iter</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">gen_pattern</span> <span class="ow">in</span> <span class="n">_generate</span><span class="p">(</span><span class="n">seq_re_list</span><span class="p">,</span> <span class="n">seq</span><span class="p">):</span>
             <span class="n">counter</span><span class="p">[</span><span class="n">gen_pattern</span><span class="p">]</span> <span class="o">=</span> <span class="n">counter</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">gen_pattern</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="c1"># sorted by the frequency</span>

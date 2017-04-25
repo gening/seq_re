@@ -12,7 +12,7 @@ from setuptools import setup, find_packages
 
 PACKAGE = 'seq_re'
 NAME = 'seq_re'
-DESCRIPTION = 'N-dimensional Sequence Regular Expression (SEQ RE)'
+DESCRIPTION = '2-dimensional Sequence Regular Expression (SEQ RE)'
 AUTHOR = 'GE Ning'
 AUTHOR_EMAIL = 'benjaminzge@gmail.com'
 URL = 'https://github.com/gening/seq_re'
@@ -72,7 +72,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='ndarray ndimensional-vector sequences seq regular-expressions regex',
+    keywords='n-tuple n-vector token sequence seq 2D-array matrix regular-expressions regex',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().

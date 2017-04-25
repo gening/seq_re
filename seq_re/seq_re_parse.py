@@ -17,8 +17,8 @@ __version__ = "1.2"
 # todo: deal with multi-value elements in the sequence
 # todo: assign an default name uniquely for group
 """
-multi-value elements in the sequence
-=> unfold multi-values as new dimensions of elements
+multi-value elements in the tuple
+=> unfold multi-values as new element of the tuple
 
 pattern:
 element match a =>
@@ -49,7 +49,7 @@ element match . =>
 .{3}
 
 sequence:
-the 3rd dimension is 3 multi-values
+the 3rd element is 3 multi-values
 tup = [W,P,(A,B,C)] =>
 extend
 WPABC
@@ -82,19 +82,19 @@ class SeqRegexParser(object):
     """The class wraps the parse function, and manages the states of the global variables."""
 
     def __init__(self):
-        self._ndim = 0  # the number of dimensions
-        self._pattern_str = None  # the string of original pattern
+        self._len_tuple = 0  # the length of the tuple
         self._placeholder_dict = None  # the substitutions of placeholders in the pattern
+        self._pattern_str = None  # the string of original pattern
         self._pattern_tokenized = None  # the Tokenizer of pattern to help iterate the chars of it
         self._pattern_stack = None  # the queue of substrings of pattern, which has been parsed
         self.named_group_format_indices = None  # the format indices of name groups
 
-    def _set(self, ndim, pattern_str, placeholder_dict):
+    def _set(self, len_tuple, pattern_str, placeholder_dict):
         """initialize the class"""
-        if isinstance(ndim, int) and ndim > 0:
-            self._ndim = ndim
+        if isinstance(len_tuple, int) and len_tuple > 0:
+            self._len_tuple = len_tuple
         else:
-            raise ValueError('invalid number of dimensions')
+            raise ValueError('invalid number of len_tuple')
         if pattern_str is not None:
             self._pattern_str = pattern_str
         else:
@@ -105,13 +105,13 @@ class SeqRegexParser(object):
         self.named_group_format_indices = dict()
 
     @property
-    def ndim(self):
-        """The number of dimensions"""
-        return self._ndim
+    def len_tuple(self):
+        """The length of the tuple"""
+        return self._len_tuple
 
     @property
-    def pattern_str(self):
-        """The string of original pattern"""
+    def pattern(self):
+        """The original string of pattern"""
         return self._pattern_str
 
     @classmethod
@@ -135,8 +135,8 @@ class SeqRegexParser(object):
 
     def _parse_group_identifier(self, identifier_string):
         """Parse the group identifier.
-        # `name` => name, [(0, ndim)]
-        # `name@` =>name, [(0, ndim)]
+        # `name` => name, [(0, len_tuple)]
+        # `name@` =>name, [(0, len_tuple)]
         # `name@format_string` => name, [(group_index_begin, group_index_end), ...]
         # `name@@` => name, None
 
@@ -153,13 +153,13 @@ class SeqRegexParser(object):
                 raise source.error('missing group name', len(identifier_string) + 1)
         # A
         if len(items) == 1:
-            format_indices.append((0, self._ndim))
+            format_indices.append((0, self._len_tuple))
         # A@ => ['A', '']
         # A@B => ['A', 'B']
         elif len(items) == 2:
             format_string = items[1]
             if format_string == '':
-                format_indices.append((0, self._ndim))
+                format_indices.append((0, self._len_tuple))
             elif format_string != '':
                 try:
                     format_indices = self._parse_indices(format_string)
@@ -253,20 +253,20 @@ class SeqRegexParser(object):
         return
 
     def _parse_tuple(self):
-        """Parse the tuple pattern as the following:
-        # which is delimited by `/.../` excluding the delimited `/` and `/`:
-        # `/X:/` `/X:Y/` `/:Y/`
-        # `//` `/|/` `/:/` `/|:/``/:|/`
+        """Parse the tuple pattern in the square brackets:
+        # which is delimited by `[...]` excluding the delimited `[` and `]`:
+        # `[X;]` `[X;Y]` `[;Y]`
+        # `[]` `[|]` `[;]` `[|;]``[;|]`
         # given that X and Y are elements.
         # in that all `(` and `)` in the elements are parsed as plain text,
         # which have no syntax meaning, the nested recursion of this function is not required.
         #
-        # when `/`
+        # when `]`
         # => parse element
-        # => add . if dim_index < ndim
-        # when `:`
+        # => add . if len_index < len_tuple
+        # when `;`
         # => parse element
-        # => dim_index ++
+        # => len_index ++
         # when `|`
         # => add an element value to set
         # when `^`
@@ -276,10 +276,10 @@ class SeqRegexParser(object):
         """
         source = self._pattern_tokenized
         parsed = self._pattern_stack
-        dim_index = 0
+        len_index = 0
         element_list = []  # [(value_list, pos), ...] = [([char1, char2, ...], pos), ...]
         negative_flag = -1
-        # open the `/`
+        # open the `[`
         start_pos = source.pos - 1
         parsed.append([Flags.TUPLE_START, '(?:', start_pos])
         while True:
@@ -287,34 +287,34 @@ class SeqRegexParser(object):
             this_pos = source.pos
             if this is None:
                 # unexpected end of tuple pattern
-                raise source.error('unbalanced slash `/`', source.pos - start_pos)
-            if this in '/':  # terminator = '/'
+                raise source.error('unbalanced square bracket `[`', source.pos - start_pos)
+            if this in ']':  # terminator = ']'
                 if negative_flag >= 0 or len(element_list) > 0:
                     self._parse_element(negative_flag, element_list)
                     # negative_flag = -1
-                    dim_index += 1
-                # check the consistency of dimensions
-                # /a:bc:def/
+                    len_index += 1
+                # check the consistency of len_tuple
+                # [a;bc;def]
                 # ^ ^  ^   ^
                 # 0 1  2   3
-                dim_vacancy = self._ndim - dim_index
-                if dim_vacancy > 0:
-                    parsed.append([Flags.EXP, '.' * dim_vacancy, None])
+                len_vacancy = self._len_tuple - len_index
+                if len_vacancy > 0:
+                    parsed.append([Flags.EXP, '.' * len_vacancy, None])
                 break  # end of tuple pattern
             source.get()
 
-            if this == ':':
-                # if terminator !='/':
-                #     raise source.error('invalid `:` out inside `/.../`', 1)
+            if this == ';':
+                # if terminator !=']':
+                #     raise source.error('invalid `;` out inside `[...]`', 1)
                 # parse the element
                 self._parse_element(negative_flag, element_list)
                 negative_flag = -1
-                # move dim_index forwards
-                dim_index += 1
-                if dim_index >= self._ndim:
-                    raise source.error('out of dimension range')
+                # move len_index forwards
+                len_index += 1
+                if len_index >= self._len_tuple:
+                    raise source.error('out of the tuple length range')
             elif this == '|':
-                if source.next not in '|:/':
+                if source.next not in '|;]':
                     # nothing to be alternated previously
                     # if len(element_list) == 0:
                     #    ignore raising source.error('unexpected alternate sign `|`')
@@ -328,7 +328,7 @@ class SeqRegexParser(object):
                 if len(element_list) == 0:
                     element_list.append(([], this_pos))
                 if this[0] == '\\':
-                    if this[1] in '/:|\\':
+                    if this[1] in '];|\\':
                         element_list[-1][0].append(this[1])
                     elif this[1] == '^' and len(element_list[0][0]) == 0:
                         # so only if it's the first character, `^` can be escaped.
@@ -337,7 +337,7 @@ class SeqRegexParser(object):
                         element_list[-1][0].append(this[0:2])
                 else:
                     element_list[-1][0].append(this)
-        # close the `/`
+        # close the `]`
         parsed.append([Flags.TUPLE_END, ')', source.pos])
         return
 
@@ -462,7 +462,7 @@ class SeqRegexParser(object):
         # => check invalid char outside of comments: [ ] \
         # => remove redundant char: whitespace
         # => count continuous dots separately,
-        #    not replace regex pattern '.\+' => '(?:' + '.' * ndim + ')'
+        #    not replace regex pattern '.\+' => '(?:' + '.' * len_tuple + ')'
         # => deal with delimiter: `(group pattern)`, `/tuple pattern/`
 
         :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]
@@ -476,28 +476,29 @@ class SeqRegexParser(object):
             if this is None:
                 break  # end of pattern
             if this == ')':
-                break  # end of group pattern
+                break  # recursive end of group pattern
             # move index of the source forward
             source.get()
 
             if this == '.':
-                parsed.append([Flags.EXP, '(?:' + '.' * self._ndim + ')', this_pos])
+                parsed.append([Flags.EXP, '(?:' + '.' * self._len_tuple + ')', this_pos])
             elif this == '(':
                 # parse the whole group content `...` without consuming `(` and `)`
                 self._parse_group()
                 if not source.match(')'):
                     # unexpected end of group pattern
                     raise source.error('unbalanced parenthesis `(`', source.pos - this_pos)
-            elif this == '/':
-                # parse the tuple whole content `...` without consuming `(` and `)`
+            elif this == '[':
+                # parse the tuple whole content `...` without consuming `[` and `]`
                 self._parse_tuple()
-                if not source.match('/'):
+                if not source.match(']'):
                     # unexpected end of group pattern
-                    raise source.error('unbalanced slash `/`', source.pos - this_pos)
+                    raise source.error('unbalanced square bracket `[`', source.pos - this_pos)
+            elif this in ']':
+                # not recursive within the tuple
+                raise source.error('unbalanced square bracket `]`', 1)
             elif this[0] == '\\':
                 raise source.error('invalid escape expression `\\`', len(this))
-            elif this in '[]':
-                raise source.error('invalid set indicator `%s`' % this, 1)
             elif this in '*+?{,}' or this in '0123456789' or this in '^$' or this in '|':
                 # repeat with digital
                 # at beginning or end
@@ -534,18 +535,18 @@ class SeqRegexParser(object):
             raise source.error('unbalanced parenthesis `)`')
         return parsed
 
-    def parse(self, ndim, pattern_str, **placeholder_dict):
+    def parse(self, len_tuple, pattern_str, **placeholder_dict):
         """The main entry of functions.
 
         Parse the pattern by translating its syntax into the equivalent in regular expression
         and return a pattern stack for future encode.
 
-        :param ndim: The number of dimensions
+        :param len_tuple: the length of the tuple
         :param pattern_str: The string of original pattern
         :param placeholder_dict: The substitutions of placeholders in the pattern
         :return: parsed = [(Flag, parsed_pattern, begin_pos), ...]
         """
-        self._set(ndim, pattern_str, placeholder_dict)
+        self._set(len_tuple, pattern_str, placeholder_dict)
         parsed = self._parse_seq()
         return parsed
 
@@ -587,7 +588,7 @@ class SeqRegexParser(object):
                 elif step > 0:
                     step -= 1
         if start > -1 and end > -1:
-            # `(?:P<name@@>pattern_str)`
+            # `(?:P<name@@>pattern)`
             return self._pattern_str[start: end + 1]
         else:
             raise ValueError('unknown group name')
@@ -621,10 +622,10 @@ class SeqRegexParser(object):
                     step -= 1
         if start > -1 and end > -1:
             if named:
-                # `(?P<....>pattern_str)`
+                # `(?P<....>pattern)`
                 return self._pattern_str[start: end + 1]
             else:
-                # `(pattern_str)`
+                # `(pattern)`
                 return self._pattern_str[start: end + 1]
         else:
             raise ValueError('group index out of range')
