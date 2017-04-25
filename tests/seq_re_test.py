@@ -165,7 +165,7 @@ class TestSeqRegex:
         print('====begin of SeqRegex test====')
 
         # pattern
-        pattern = '(?P<company1@0>/name/) .{0,5} (?P<company2@1>/^name:nc/) .{0,5} (/:verb/)'
+        pattern = '(?P<company1@0>[name]) .{0,5} (?P<company2@1>[^name;nc]) .{0,5} ([;verb])'
         abbr = {'name': [u'中信证券', u'中信集团'], 'verb': 'v'}
 
         # test
@@ -186,8 +186,8 @@ class TestSeqRegex:
     def test_example(self):
         print('====begin of SeqRegex example test====')
         n = 3
-        pattern = ('(?P<name@0>/::PERSON/+) /was|has been/ /a|an/? '
-                   '(?P<attrib@0,1>.{0,3}) (/artist/)')
+        pattern = ('(?P<name@0>[;;PERSON]+) [is|was|has been] [a|an]? '
+                   '(?P<attrib@0,1>.{0,3}) ([artist])')
         seq = [['Vincent van Gogh', 'NNP', 'PERSON'],
                ['was', 'VBD', 'O'],
                ['a', 'DT', 'O'],
@@ -228,9 +228,9 @@ class TestSeqRegex:
 
         # pattern
         # todo: assign an default name uniquely for group
-        trigger_pattern = ('(?P<company1@@>/company_name1/) (?P<x1@@>.{0,5}) '
-                           '(?P<verb@0>/:v/) (?P<x2@@>.{0,5}) '
-                           '(?P<company2@@>/company_name2/) (?P<x3@@>.{0,5}) (?P<noun@0>/:n/)')
+        trigger_pattern = ('(?P<company1@@>[company_name1]) (?P<x1@@>.{0,5}) '
+                           '(?P<verb@0>[;v]) (?P<x2@@>.{0,5}) '
+                           '(?P<company2@@>[company_name2]) (?P<x3@@>.{0,5}) (?P<noun@0>[;n])')
         trigger_dict_list = [{'company_name1': [u'中信证券'], 'company_name2': u'美的集团'},
                              {'company_name1': [u'中信证券股份有限公司'],
                               'company_name2': u'中信证券'}]  # trigger tuples

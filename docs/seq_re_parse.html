@@ -54,7 +54,7 @@
 <span id="seq-re-seq-re-parse-module"></span><h1>seq_re.seq_re_parse module<a class="headerlink" href="#module-seq_re.seq_re_parse" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="parse-the-syntax-of-sequence-regular-express-pattern">
 <h2>Parse the syntax of sequence regular express pattern<a class="headerlink" href="#parse-the-syntax-of-sequence-regular-express-pattern" title="Permalink to this headline">¶</a></h2>
-<p>Parse the original string of seq_re pattern into an queue of parsed parts, 
+<p>Parse the original string of seq_re pattern into an queue of parsed parts,
 and translate the syntax of each part into its equivalent of the ordinary regular expression.</p>
 <dl class="class">
 <dt id="seq_re.seq_re_parse.Flags">
@@ -141,7 +141,7 @@ and translate the syntax of each part into its equivalent of the ordinary regula
 <dl class="method">
 <dt id="seq_re.seq_re_parse.SeqRegexParser.dump">
 <code class="descname">dump</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_parse.html#SeqRegexParser.dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_parse.SeqRegexParser.dump" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transform self._pattern_stack into pseudo regular expression string 
+<dd><p>Transform self._pattern_stack into pseudo regular expression string
 for debugging or testing.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -200,23 +200,23 @@ for debugging or testing.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="seq_re.seq_re_parse.SeqRegexParser.ndim">
-<code class="descname">ndim</code><a class="headerlink" href="#seq_re.seq_re_parse.SeqRegexParser.ndim" title="Permalink to this definition">¶</a></dt>
-<dd><p>The number of dimensions</p>
+<dt id="seq_re.seq_re_parse.SeqRegexParser.len_tuple">
+<code class="descname">len_tuple</code><a class="headerlink" href="#seq_re.seq_re_parse.SeqRegexParser.len_tuple" title="Permalink to this definition">¶</a></dt>
+<dd><p>The length of the tuple</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="seq_re.seq_re_parse.SeqRegexParser.parse">
-<code class="descname">parse</code><span class="sig-paren">(</span><em>ndim</em>, <em>pattern_str</em>, <em>**placeholder_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_parse.html#SeqRegexParser.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_parse.SeqRegexParser.parse" title="Permalink to this definition">¶</a></dt>
+<code class="descname">parse</code><span class="sig-paren">(</span><em>len_tuple</em>, <em>pattern_str</em>, <em>**placeholder_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/seq_re/seq_re_parse.html#SeqRegexParser.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#seq_re.seq_re_parse.SeqRegexParser.parse" title="Permalink to this definition">¶</a></dt>
 <dd><p>The main entry of functions.</p>
-<p>Parse the pattern by translating its syntax into the equivalent in regular expression 
+<p>Parse the pattern by translating its syntax into the equivalent in regular expression
 and return a pattern stack for future encode.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>ndim</strong> &#8211; The number of dimensions</li>
+<li><strong>len_tuple</strong> &#8211; the length of the tuple</li>
 <li><strong>pattern_str</strong> &#8211; The string of original pattern</li>
 <li><strong>placeholder_dict</strong> &#8211; The substitutions of placeholders in the pattern</li>
 </ul>
@@ -230,9 +230,9 @@ and return a pattern stack for future encode.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="seq_re.seq_re_parse.SeqRegexParser.pattern_str">
-<code class="descname">pattern_str</code><a class="headerlink" href="#seq_re.seq_re_parse.SeqRegexParser.pattern_str" title="Permalink to this definition">¶</a></dt>
-<dd><p>The string of original pattern</p>
+<dt id="seq_re.seq_re_parse.SeqRegexParser.pattern">
+<code class="descname">pattern</code><a class="headerlink" href="#seq_re.seq_re_parse.SeqRegexParser.pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>The original string of pattern</p>
 </dd></dl>
 
 </dd></dl>

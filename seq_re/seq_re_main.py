@@ -41,7 +41,7 @@ except NameError:
 
 class SeqRegex(object):
     """
-    Encode each dimension of the pattern and sequence into a single char.
+    Encode each element of the pattern and sequence into a single char.
 
     And then form the pattern and sequence into a linear string,
     which are suitable for using the ordinary regular expression (RE) to match.
@@ -55,12 +55,16 @@ class SeqRegex(object):
     #                                          #
     # ######################################## #
 
-    def __init__(self, ndim):
-        if isinstance(ndim, int) and ndim > 0:
-            self._ndim = ndim  # the number of dimensions
+    def __init__(self, len_tuple):
+        """Initialize a SeqRegex instance.
+        
+        :param len_tuple: The length of the tuple
+        """
+        if isinstance(len_tuple, int) and len_tuple > 0:
+            self._len_tuple = len_tuple  # The length of the tuple
         else:
-            raise ValueError('invalid number of dimensions')
-        self._seq_pattern = None  # the original string of pattern
+            raise ValueError('invalid length of the tuple')
+        self._pattern = None  # the original string of pattern
         self._placeholder_dict = None  # the substitutions of placeholders in the pattern
         self._map_encode = dict()  # encoding dict：a phrase (words) => a single char of unicode
         # self._map_decode = dict()  # decoding dict：a single char of unicode => original words
@@ -69,17 +73,17 @@ class SeqRegex(object):
         self._regex = None  # the ordinary regular expression object: RegexObject
 
     @property
-    def ndim(self):
-        """The number of dimensions"""
-        return self._ndim
+    def len_tuple(self):
+        """The length of the tuple"""
+        return self._len_tuple
 
     @property
-    def seq_pattern(self):
+    def pattern(self):
         """The original string of pattern"""
-        return self._seq_pattern
+        return self._pattern
 
     def _clear(self):
-        self._seq_pattern = None
+        self._pattern = None
         self._placeholder_dict = None
         self._map_encode.clear()
         # self._map_decode.clear()
@@ -127,7 +131,7 @@ class SeqRegex(object):
 
         :return: a ordinary RE string
         """
-        parsed = self._parser.parse(self._ndim, self._seq_pattern, **self._placeholder_dict)
+        parsed = self._parser.parse(self._len_tuple, self._pattern, **self._placeholder_dict)
         # transform _pattern_stack into pseudo regular expression string for check or test
         pattern_str_list = []
         if parsed:
@@ -142,12 +146,11 @@ class SeqRegex(object):
         # print ''.join(pattern_str_list)
         return ''.join(pattern_str_list)
 
-    def _encode_sequence(self, nd_sequence):
-        """Encode the n-dimension sequence into a linear of string for matching the pattern"""
-        self._nd_sequence = nd_sequence
+    def _encode_sequence(self, sequence):
+        """Encode the 2-dimension sequence into a linear of string for matching the pattern"""
         stack_encoded = []
-        for nd_tuple in nd_sequence:
-            for element in nd_tuple:
+        for n_tuple in sequence:
+            for element in n_tuple:
                 # string not presenting in the pattern needs not to be encoded into a unicode char
                 stack_encoded.append(self._encode_str(element, '.'))
         return ''.join(stack_encoded)
@@ -167,20 +170,20 @@ class SeqRegex(object):
             assert isinstance(outer_class, SeqRegex)
             self._outer = outer_class
 
-        def finditer(self, nd_sequence):
-            return self._outer.finditer(self._outer._seq_pattern, nd_sequence)
+        def finditer(self, sequence):
+            return self._outer.finditer(self._outer._pattern, sequence)
 
-        def search(self, nd_sequence):
-            return self._outer.search(self._outer._seq_pattern, nd_sequence)
+        def search(self, sequence):
+            return self._outer.search(self._outer._pattern, sequence)
 
-        def findall(self, nd_sequence):
-            return self._outer.findall(self._outer._seq_pattern, nd_sequence)
+        def findall(self, sequence):
+            return self._outer.findall(self._outer._pattern, sequence)
 
-        def is_useless_for(self, nd_sequence):
+        def is_useless_for(self, sequence):
             """For preliminary screening the seq in advanced,
             to check whether regular expression has no chance of success.
 
-            :param nd_sequence: An N-dimensional Sequence
+            :param sequence:  A 2-dimensional Sequence (or the sequence of tuples)
             :return: True if SEQ RE no chance of success else False
             """
             # for literals in the negative set,
@@ -194,8 +197,8 @@ class SeqRegex(object):
                 useless = True
                 for literal in each_set:
                     # seq.find(literal) > -1 but seq is not a string
-                    for nd_tuple in nd_sequence:
-                        for e in nd_tuple:
+                    for n_tuple in sequence:
+                        for e in n_tuple:
                             # list, set
                             if hasattr(e, '__iter__'):
                                 if literal in e:
@@ -234,14 +237,14 @@ class SeqRegex(object):
             """
             formatted_str_list = []
 
-            def formatter(nd_elements):
-                formatted_str = ':'.join(['|'.join(unicode_str(values))
+            def formatter(n_tuple):
+                formatted_str = ';'.join(['|'.join(unicode_str(values))
                                           if hasattr(values, '__iter__') else
                                           unicode_str(values) for values in
-                                          nd_elements])  # support multi-value element
-                formatted_str = formatted_str.rstrip(':')
+                                          n_tuple])  # support multi-value element
+                formatted_str = formatted_str.rstrip(';')
                 if len(formatted_str) > 0:
-                    return '/%s/' % formatted_str
+                    return '[%s]' % formatted_str
                 else:
                     return '.'
 
@@ -253,7 +256,7 @@ class SeqRegex(object):
                     format_indices = self.sq_re._parser.named_group_format_indices[group_name]
                     if format_indices is not None:
                         for match_tuple in match_sequence:
-                            formatted_tuple = [''] * self.sq_re.ndim
+                            formatted_tuple = [''] * self.sq_re.len_tuple
                             for low, high in format_indices:
                                 formatted_tuple[low: high] = match_tuple[low: high]
                             formatted_str_list.append(formatter(formatted_tuple))
@@ -278,71 +281,71 @@ class SeqRegex(object):
     #                                          #
     # ######################################## #
 
-    def compile(self, seq_pattern, **placeholder_dict):
+    def compile(self, pattern, **placeholder_dict):
         """Compile a SEQ RE pattern into a ordinary RE object.
 
-        :param seq_pattern: A string of SEQ RE pattern
+        :param pattern: A string of SEQ RE pattern
         :param placeholder_dict: {placeholder_name1: p1, placeholder_name2: p2}
                                  in which p1, p2 could be a str or a list of str.
         :return: A SeqRegexObject Instance
         """
         self._clear()
-        self._seq_pattern = seq_pattern
+        self._pattern = pattern
         self._placeholder_dict = placeholder_dict
         regex_pattern = self._encode_pattern()
         self._regex = re.compile(regex_pattern)
         return self.SeqRegexObject(self)
 
-    def finditer(self, seq_pattern, nd_sequence):
+    def finditer(self, pattern, sequence):
         """
         Return an iterator yielding SeqMatchObject instances
-        over all non-overlapping matches for the SEQ RE pattern in n-dimension sequence.
+        over all non-overlapping matches for the SEQ RE pattern over the sequence of tuples.
 
         The matched group can be acquired by the group_list or named_group_dict
         of SeqMatchObject returned.
 
-        :param seq_pattern: A string of SEQ RE pattern
-        :param nd_sequence: An N-dimensional Sequence
+        :param pattern: A string of SEQ RE pattern
+        :param sequence: A 2-dimensional Sequence (or the sequence of tuples)
         :return: An iterator which generates a SeqMatchObject Instance
         """
-        if seq_pattern != self._seq_pattern:
-            self.compile(seq_pattern)
+        if pattern != self._pattern:
+            self.compile(pattern)
 
-        text_line = self._encode_sequence(nd_sequence)
-        for match in self._regex.finditer(text_line):
+        regex_string = self._encode_sequence(sequence)
+        for match in self._regex.finditer(regex_string):
             match_object = SeqRegex.SeqMatchObject(self)
             # The entire match (group_index = 0) and Parenthesized subgroups
             for group_index in range(len(match.groups()) + 1):
-                start = match.start(group_index) / self._ndim
-                end = match.end(group_index) / self._ndim
+                start = match.start(group_index) / self._len_tuple
+                end = match.end(group_index) / self._len_tuple
                 match_object.group_list.append((group_index,
-                                                nd_sequence[start:end], start, end))
+                                                sequence[start:end], start, end))
             # Named subgroups
             for group_name, group_index in self._regex.groupindex.items():
-                start = match.start(group_index) / self._ndim
-                end = match.end(group_index) / self._ndim
+                start = match.start(group_index) / self._len_tuple
+                end = match.end(group_index) / self._len_tuple
                 # group_index is needed to sort the named groups in order
                 match_object.named_group_dict[group_name] = (group_index,
-                                                             nd_sequence[start:end], start, end)
+                                                             sequence[start:end], start, end)
             yield match_object
 
-    def search(self, seq_pattern, nd_sequence):
+    def search(self, pattern, sequence):
         """
-        Scan through n-dimension sequence looking for
+        Scan through the sequence of tuples looking for
         the first location where the SEQ RE pattern produces a match,
         and return a corresponding SeqMatchObject instance.
 
-        :param seq_pattern: A string of SEQ RE pattern
-        :param nd_sequence: An N-dimensional Sequence
+        :param pattern: A string of SEQ RE pattern
+        :param sequence: A 2-dimensional Sequence (or the sequence of tuples)
         :return: A SeqMatchObject Instance if match else None
         """
-        return next(self.finditer(seq_pattern, nd_sequence), None)
+        return next(self.finditer(pattern, sequence), None)
 
-    def findall(self, seq_pattern, nd_sequence):
+    def findall(self, pattern, sequence):
         """Similar to the finditer() function.
 
-        :param seq_pattern: A string of SEQ RE pattern
-        :param nd_sequence: An N-dimensional Sequence
+        :param pattern: A string of SEQ RE pattern
+        :param sequence: A 2-dimensional Sequence (or the sequence of tuples)
         :return: A list of SeqMatchObject Instance
         """
-        return [self.finditer(seq_pattern, nd_sequence)]
+        return [self.finditer(pattern, sequence)]
