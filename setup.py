@@ -72,7 +72,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='n-tuple n-vector token sequence seq 2D-array matrix regular-expressions regex',
+    keywords='n-tuple n-vector token sequence seq 2D-array matrix regular-expression regex',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
