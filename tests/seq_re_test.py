@@ -248,6 +248,7 @@ class TestSeqRegex:
 
 
 if __name__ == '__main__':
+    # noinspection PyPackageRequirements
     import nose
 
     # argv[0] is not param but the cmd name itself

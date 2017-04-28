@@ -147,7 +147,7 @@ class SeqRegexParser(object):
         name = ''
         format_indices = []
         items = identifier_string.split('@')
-        if len(items) > 0:
+        if items:
             name = items[0]
             if name == '':
                 raise source.error('missing group name', len(identifier_string) + 1)
@@ -228,7 +228,7 @@ class SeqRegexParser(object):
             else:
                 elements.append([value_str, source_pos])
 
-        if len(elements) == 0:
+        if not elements:
             # nothing to be negatived
             if negatived:
                 raise source.error('unexpected negative sign `^`', source.pos - negative_flag)
@@ -289,7 +289,7 @@ class SeqRegexParser(object):
                 # unexpected end of tuple pattern
                 raise source.error('unbalanced square bracket `[`', source.pos - start_pos)
             if this in ']':  # terminator = ']'
-                if negative_flag >= 0 or len(element_list) > 0:
+                if negative_flag >= 0 or element_list:
                     self._parse_element(negative_flag, element_list)
                     # negative_flag = -1
                     len_index += 1
@@ -316,21 +316,21 @@ class SeqRegexParser(object):
             elif this == '|':
                 if source.next not in '|;]':
                     # nothing to be alternated previously
-                    # if len(element_list) == 0:
+                    # if not element_list:
                     #    ignore raising source.error('unexpected alternate sign `|`')
                     # new value of the element
                     element_list.append(([], this_pos + 1))
-            elif this == '^' and len(element_list) == 0 and negative_flag < 0:
+            elif this == '^' and not element_list and negative_flag < 0:
                 # `^` has no special meaning if it’s not the first character in the set.
                 # negatived = True
                 negative_flag = this_pos
             else:
-                if len(element_list) == 0:
+                if not element_list:
                     element_list.append(([], this_pos))
                 if this[0] == '\\':
                     if this[1] in '];|\\':
                         element_list[-1][0].append(this[1])
-                    elif this[1] == '^' and len(element_list[0][0]) == 0:
+                    elif this[1] == '^' and not element_list[0][0]:
                         # so only if it's the first character, `^` can be escaped.
                         element_list[-1][0].append(this[1])
                     else:
@@ -657,7 +657,7 @@ class SeqRegexParser(object):
                     else:
                         literal_set_list.append(set([string]))  # a set
             elif flag == Flags.SET_END:
-                if len(literal_set_list[-1]) == 0:
+                if not literal_set_list[-1]:
                     literal_set_list.pop(-1)
                 in_set = False
                 set_sign = True

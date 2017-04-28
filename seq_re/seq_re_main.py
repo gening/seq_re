@@ -243,7 +243,7 @@ class SeqRegex(object):
                                           unicode_str(values) for values in
                                           n_tuple])  # support multi-value element
                 formatted_str = formatted_str.rstrip(';')
-                if len(formatted_str) > 0:
+                if formatted_str:
                     return '[%s]' % formatted_str
                 else:
                     return '.'
