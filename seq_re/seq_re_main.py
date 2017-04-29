@@ -7,6 +7,7 @@ Compile the SEQ RE pattern into an ordinary regular expression (RE) pattern.
 And every dimension of the sequence is encoded and arranged into a string,
 which is scanned by the RE pattern using search() or findall() functions.
 """
+# todo: index result from the original sequence
 # todo: deal with multi-value elements in the sequence
 # todo: assign an default name uniquely for group
 

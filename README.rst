@@ -174,6 +174,7 @@ The usage of seq_re module::
            ['Western art', 'NNP', 'DOMAIN'],
            ['.', '.', 'O']]
     placeholder_dict = {'artist': ['painter', 'drawing artist']}
+    # todo:
     # for 'drawing artist', the processing between English and Chinese are
     # a little bit different with whitespace here.
 
