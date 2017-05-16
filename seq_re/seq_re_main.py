@@ -10,6 +10,7 @@ which is scanned by the RE pattern using search() or findall() functions.
 # todo: index result from the original sequence
 # todo: deal with multi-value elements in the sequence
 # todo: assign an default name uniquely for group
+# todo: compatible with regex the alternative package of re
 
 __author__ = "GE Ning <https://github.com/gening/seq_re>"
 __copyright__ = "Copyright (C) 2017 GE Ning"
