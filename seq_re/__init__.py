@@ -200,8 +200,8 @@ __license__ = "LGPL-3.0"
 __version__ = "0.2.1"
 
 # global classes and functions
-from seq_re_main import SeqRegex
-from seq_re_bootstrap import bootstrap
+from .seq_re_main import SeqRegex
+from .seq_re_bootstrap import bootstrap
 
 SeqRegex = SeqRegex
 """Wrapper namespace of SeqRegex in `seq_re_main <seq_re_main.html>`_ module."""

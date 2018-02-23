@@ -17,7 +17,7 @@ __version__ = "1.2"
 
 import re
 
-import seq_re_parse as sp
+from . import seq_re_parse as sp
 
 # compatible with Python 2 & 3
 try:
