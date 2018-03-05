@@ -350,4 +350,4 @@ class SeqRegex(object):
         :param sequence: A 2-dimensional Sequence (or the sequence of tuples)
         :return: A list of SeqMatchObject Instance
         """
-        return [self.finditer(pattern, sequence)]
+        return list(self.finditer(pattern, sequence))
