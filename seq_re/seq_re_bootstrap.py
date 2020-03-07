@@ -42,7 +42,7 @@ __copyright__ = "Copyright (C) 2017 GE Ning"
 __license__ = "LGPL-3.0"
 __version__ = "1.0"
 
-import seq_re_main
+from . import seq_re_main
 
 
 def _prepare(len_tuple, pattern, trigger_dict_list):

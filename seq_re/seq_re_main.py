@@ -12,6 +12,8 @@ which is scanned by the RE pattern using search() or findall() functions.
 # todo: assign an default name uniquely for group
 # todo: compatible with regex the alternative package of re
 
+from __future__ import division
+
 __author__ = "GE Ning <https://github.com/gening/seq_re>"
 __copyright__ = "Copyright (C) 2017 GE Ning"
 __license__ = "LGPL-3.0"
@@ -19,7 +21,7 @@ __version__ = "1.2"
 
 import re
 
-import seq_re_parse as sp
+from . import seq_re_parse as sp
 
 # compatible with Python 2 & 3
 try:
@@ -318,14 +320,14 @@ class SeqRegex(object):
             match_object = SeqRegex.SeqMatchObject(self)
             # The entire match (group_index = 0) and Parenthesized subgroups
             for group_index in range(len(match.groups()) + 1):
-                start = match.start(group_index) / self._len_tuple
-                end = match.end(group_index) / self._len_tuple
+                start = match.start(group_index) // self._len_tuple
+                end = match.end(group_index) // self._len_tuple
                 match_object.group_list.append((group_index,
                                                 sequence[start:end], start, end))
             # Named subgroups
             for group_name, group_index in self._regex.groupindex.items():
-                start = match.start(group_index) / self._len_tuple
-                end = match.end(group_index) / self._len_tuple
+                start = match.start(group_index) // self._len_tuple
+                end = match.end(group_index) // self._len_tuple
                 # group_index is needed to sort the named groups in order
                 match_object.named_group_dict[group_name] = (group_index,
                                                              sequence[start:end], start, end)
@@ -350,4 +352,4 @@ class SeqRegex(object):
         :param sequence: A 2-dimensional Sequence (or the sequence of tuples)
         :return: A list of SeqMatchObject Instance
         """
-        return [self.finditer(pattern, sequence)]
+        return list(self.finditer(pattern, sequence))

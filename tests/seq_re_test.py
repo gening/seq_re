@@ -9,7 +9,7 @@ seq_re_main.py
 seq_re_bootstrap.py
 
 """
-from __future__ import print_function
+from __future__ import print_function, division
 
 __author__ = "GE Ning <https://github.com/gening/seq_regex>"
 __copyright__ = "Copyright (C) 2017 GE Ning"
@@ -43,7 +43,7 @@ def print_pattern_info(pattern):
     for i in range(len(pattern)):
         width = char_width(pattern[i])
         if i % 10 == 0:
-            line.append(str(i / 10) if width == 1 else full_width[i / 10])
+            line.append(str(i // 10) if width == 1 else full_width[i // 10])
         else:
             line.append(' ' if width == 1 else full_width[10])
     print(*line)
